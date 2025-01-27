@@ -1,0 +1,5 @@
+Flask~=2.3.2
+requests~=2.31.0
+pyyaml~=6.0.1
+flask_restful~=0.3.10
+paho-mqtt~=1.6.1

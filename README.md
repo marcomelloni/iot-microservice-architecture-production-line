@@ -2,7 +2,7 @@
 
 This project implements an **IoT Microservices Software Architecture** designed to monitor a production line composed of multiple robotic arms. The architecture leverages microservices and containerization to provide a modular, scalable, and maintainable solution for real-time monitoring and management.
 
-![IoT Architecture](images/iot_architecture.jpg)
+![IoT Architecture](images/iot_architecture.png)
 
 ## System Overview
 

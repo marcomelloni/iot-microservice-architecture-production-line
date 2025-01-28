@@ -30,13 +30,12 @@ The system consists of several key components, each responsible for specific fun
 
 ![Microservice Architecture](images/microservices.png)
 
-The main component of the system are:
+Step-by-step guide:
 
-## Docker Network
+## Create a Docker Network
 
 Since we are going to deploy multiple containers, we need to create a dedicated network to allow communication between them.
 **In this way containers can communicate with each other using the container name as the hostname.**
-This approach will simplify the configuration and the deployment of the services instead of using the IP address of the host machine.
 
 Create a Docker network to allow the containers to communicate with each other:
 
@@ -44,15 +43,34 @@ Create a Docker network to allow the containers to communicate with each other:
   docker network create iot_production_line_network
 ```
 
-Listing the networks:
-
-```bash
-  docker network ls
-```
-
-All the containers that we are going to build and deploy will be connected to this network to allow communication between them.
 In order to connect a container to a network, you can use the following parameter `--network iot_iot_production_line_network` at the run time:
 
 ```bash
   docker run --name=<container_name> --network iot_production_line_network <other_options> <image_name>
 ```
+
+## MQTT Local Broker Setup - Eclipse Mosquitto
+
+This guide outlines how to set up and customize an MQTT broker using **Eclipse Mosquitto**. We use the official `eclipse-mosquitto` Docker image (version `2.0.12`) available on Docker Hub.
+
+When setting up the broker, the following custom configurations are applied:
+
+- Mount a local `mosquitto.conf` file
+- Mount a local folder for persistent data storage
+- Mount a local folder for logs
+- Map the default MQTT port `1883`
+- Port mapping: `-p 1883:1883`
+- Restart always: `--restart always`
+- Daemon mode: `-d`
+
+**Steps to Set Up the Local Broker**
+
+1. **Navigate to the MQTT Local Broker Directory**
+   ```bash
+   cd mqtt-local-broker
+   ```
+2. **Run the Docker Container**
+
+   ```bash
+
+   ```

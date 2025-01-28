@@ -1,4 +1,4 @@
-broker_ip: "my-mosquitto-broker"
-broker_port: 1883
+broker_ip: "cloud-mosquitto-broker"
+broker_port: 1883 #1883 or 1884?
 target_telemetry_topic: "robot/+/telemetry/#"
 device_api_url: "http://http-api:7070/api/v1/productionline/robot"

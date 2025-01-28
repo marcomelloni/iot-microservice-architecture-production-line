@@ -39,6 +39,7 @@ class WebServer:
         # Add URL rules to the Flask app mapping the URL to the function
         self.app.add_url_rule('/robot/<string:robot_id>/telemetry/joints_consumption', 'joint_consumption', self.joint_consumption)
         self.app.add_url_rule('/robot/<string:robot_id>/telemetry/weight_ee', 'weight_ee', self.weight_ee)
+        self.app.add_url_rule('/', 'index', self.index)
 
     def read_configuration_file(self):
         """ Read Configuration File for the Web Server
@@ -55,6 +56,10 @@ class WebServer:
             self.configuration_dict = yaml.safe_load(file)
 
         print("Read Configuration from file ({}): {}".format(self.config_file, self.configuration_dict))
+        
+    def index(self):
+        """ Render the index.html template"""
+        return render_template('index.html')
 
     def joint_consumption(self, robot_id):
         """ Get telemetry data for a specific device and render the telemetry.html template"""

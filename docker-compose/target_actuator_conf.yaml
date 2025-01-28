@@ -1,0 +1,4 @@
+broker_ip: "my-mosquitto-broker"
+broker_port: 1883
+target_telemetry_topic: "data/+/#"
+device_api_url: "http://http-api:7070/api/v1/productionline/data"

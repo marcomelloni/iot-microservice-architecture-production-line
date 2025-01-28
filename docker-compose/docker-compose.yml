@@ -7,9 +7,20 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ${PWD}/mqtt-local-broker/mosquitto_local.conf:/mosquitto/config/mosquitto.conf
       - ${PWD}/data:/mosquitto/data
       - ${PWD}/log:/mosquitto/log
+    restart: always
+    networks:
+      - iot_production_line_network
+
+  cloud-mosquitto-broker:
+    container_name: cloud-mosquitto-broker
+    image: eclipse-mosquitto:2.0.12
+    ports:
+      - "1884:1883" # Change port to avoid conflict with local broker
+    volumes:
+      - ${PWD}/mqtt-cloud-broker/mosquitto_cloud.conf:/mosquitto/config/mosquitto.conf
     restart: always
     networks:
       - iot_production_line_network
@@ -43,6 +54,18 @@ services:
     image: mqtt_data_fetcher_production_line:0.1
     volumes:
       - ${PWD}/target_fetcher_conf.yaml:/app/fetcher_conf.yaml
+    restart: always
+    depends_on:
+      - my-mosquitto-broker
+      - http-api
+    networks:
+      - iot_production_line_network
+
+  fault-prevention-actuator:
+    container_name: fault-prevention-actuator
+    image: fault-prevention-actuator:0.1
+    volumes:
+      - ${PWD}/target_actuator_conf.yaml:/app/actuator_conf.yaml
     restart: always
     depends_on:
       - my-mosquitto-broker

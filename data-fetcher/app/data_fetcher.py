@@ -52,10 +52,25 @@ def on_message(client, userdata, msg):
                 response = requests.post(target_url, json=payload)
                 print(f"POST request to {target_url} with payload {payload} returned {response.status_code}")
                 
+                # Publish message to MQTT broker for MQTT Fault Prevention Actuator
+                mqtt_topic_publish = f"robot/{robot_id}/data/joints_consumption"
+                data = payload
+                client.publish(mqtt_topic_publish, json.dumps(data))
+                print(f"Published message to {mqtt_topic_publish} with payload {data}")
+                
             elif message == "grip_ee":
+                # Send POST request to API to update the weight_ee value
                 target_url = f"{api_url}/{robot_id}/telemetry/weight_ee"
-                response = requests.post(target_url, json=payload)
-                print(f"POST request to {target_url} with payload {payload} returned {response.status_code}")
+                weight = payload #convert from grip value to weight
+                response = requests.post(target_url, json=weight)
+                print(f"POST request to {target_url} with payload {weight} returned {response.status_code}")
+                
+                # Publish message to MQTT broker for MQTT Fault Prevention Actuator
+                mqtt_topic_publish = f"robot/{robot_id}/data/weight_ee"
+                data = payload
+                client.publish(mqtt_topic_publish, json.dumps(data))
+                print(f"Published message to {mqtt_topic_publish} with payload {data}")
+                
             else:
                 print(f"Unknown message type: {message}")
         except Exception as e:

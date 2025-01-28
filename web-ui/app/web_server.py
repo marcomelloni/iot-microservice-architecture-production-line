@@ -26,7 +26,7 @@ class WebServer:
             "web": {
                 "host": "0.0.0.0",
                 "port": 7071,
-                "api_base_url": "http://127.0.0.1:7070/api/v1/productionline/inventory"
+                "api_base_url": "http://127.0.0.1:7070/api/v1/productionline"
             }
         }
 
@@ -37,7 +37,8 @@ class WebServer:
         self.app = Flask(__name__, template_folder=template_dir)
 
         # Add URL rules to the Flask app mapping the URL to the function
-        self.app.add_url_rule('/robot/<string:robot_id>/telemetry', 'telemetry', self.telemetry)
+        self.app.add_url_rule('/robot/<string:robot_id>/telemetry/joints_consumption', 'joint_consumption', self.joint_consumption)
+        self.app.add_url_rule('/robot/<string:robot_id>/telemetry/weight_ee', 'weight_ee', self.weight_ee)
 
     def read_configuration_file(self):
         """ Read Configuration File for the Web Server

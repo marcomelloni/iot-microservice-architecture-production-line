@@ -4,4 +4,3 @@ class DataManager:
     Abstracts the data storage and retrieval operations.
     In this implementation everything is stored in memory.
     """
-

@@ -46,7 +46,7 @@ def on_message(client, userdata, msg):
             health = 100
             
             if health < 20:
-                mqtt_topic_publish = f"robot/{robot_id}/control/stop"
+                mqtt_topic_publish = "production_line/control/stop"
                 data = True
                 client.publish(mqtt_topic_publish, json.dumps(data))
                 print(f"Published message to {mqtt_topic_publish} with payload {data}")

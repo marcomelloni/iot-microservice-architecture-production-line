@@ -3,6 +3,7 @@ from .. .model.weight_ee_model import WeightEndEffectorDTO
 
 
 class DataManager:
+
     joint_dictionary = {}
     weight_end_effector_dictionary = {}
 
@@ -44,3 +45,8 @@ class DataManager:
     def remove_weight_end_effector(self, weight_end_effector_uuid):
         if weight_end_effector_uuid in self.weight_end_effector_dictionary.keys():
             del self.weight_end_effector_dictionary[weight_end_effector_uuid]
+    """
+    DataManager class is responsible for managing the data of the application.
+    Abstracts the data storage and retrieval operations.
+    In this implementation everything is stored in memory.
+    """

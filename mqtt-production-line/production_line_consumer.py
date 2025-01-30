@@ -1,35 +1,55 @@
 import paho.mqtt.client as mqtt
 from model.production_line import ProductionLine
+import json
 
-# The callback for when the client receives a CONNACK response from the server.
+# Define the callback for when the client receives a CONNACK response from the server
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
+    """Called when the client connects to the broker."""
+    print(f"Connected with result code {rc}")
+    # Subscribe to the topic after successful connection
     mqtt_client.subscribe(target_topic_filter)
-    print("Subscribed to: " + target_topic_filter)
+    print(f"Subscribed to: {target_topic_filter}")
 
-
-# Define a callback method to receive asynchronous messages
+# Define a callback to handle received messages
 def on_message(client, userdata, message):
-
-    # If the received message match the target filter
+    """Called when a message is received."""
+    
+    # Check if the received message matches the topic filter
     if mqtt.topic_matches_sub(target_topic_filter, message.topic):
-        message_payload = str(message.payload.decode("utf-8"))
-        # ferma la linea di produzione
+        try:
+            # Decode the message payload as a string
+            message_payload = message.payload.decode("utf-8")
+            payload_data = json.loads(message_payload)  # Assume the payload is JSON-encoded
+            
+            print(f"Received message on topic {message.topic}: {payload_data}")
 
+            # Check if the message contains a command to stop the production line
+            if payload_data.get("value") == True:
+                # Call deactivate on the production line if the value is True
+                production_line.deactivate()
+                print("Production line deactivated.")
+
+        except json.JSONDecodeError:
+            print("Error decoding JSON payload.")
 
 # Configuration variables
-client_id = "ProductionLine0001-Consumer"
-broker_ip = "127.0.0.1"
-broker_port = 1883
-target_topic_filter = "production_line/control/stop"
+client_id = "ProductionLine-Consumer"
+broker_ip = "127.0.0.1"  # Broker IP address
+broker_port = 1883  # Broker port
+target_topic_filter = "production_line/control/stop"  # Topic to listen for the stop command
+
+# Assuming you have a ProductionLine instance that you want to control
+production_line = ProductionLine("PL_001")
 
 # Create a new MQTT Client
 mqtt_client = mqtt.Client(client_id)
 
-# Attack Paho OnMessage Callback Method
+# Attach the callback methods
 mqtt_client.on_message = on_message
 mqtt_client.on_connect = on_connect
 
-# Connect to the target MQTT Broker
+# Connect to the MQTT Broker
 mqtt_client.connect(broker_ip, broker_port)
+
+# Start the MQTT client loop (this will block and keep the program running)
 mqtt_client.loop_forever()

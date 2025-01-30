@@ -47,8 +47,8 @@ def on_message(client, userdata, msg):
             
             if health < 20:
                 mqtt_topic_publish = "production_line/control/stop"
-                data = True
-                client.publish(mqtt_topic_publish, json.dumps(data))
+                value = True
+                client.publish(mqtt_topic_publish, json.dumps(value))
                 print(f"Published message to {mqtt_topic_publish} with payload {data}")
             
             

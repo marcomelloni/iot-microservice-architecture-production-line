@@ -98,7 +98,6 @@ class WebServer:
         # Return the JSON response
         return response_string.json()
 
-
     def run_server(self):
         """ Run the Flask Web Server"""
         self.app.run(host=self.configuration_dict['web']['host'], port=self.configuration_dict['web']['port'])

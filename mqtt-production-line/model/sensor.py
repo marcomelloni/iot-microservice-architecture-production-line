@@ -1,30 +1,12 @@
-from abc import ABC, abstractmethod
-from datetime import datetime
 
+from model.device import Device
 
-class Sensor(ABC):
-    def __init__(self, sensor_id, sensor_type, manufacturer):
-        self.id = sensor_id
-        self.type = sensor_type
-        self.manufacturer = manufacturer
-        self.value = self.measure()
-        self.timestamp = datetime.now()
+class Sensor(Device):
+    def __init__(self, device_id: str, device_type: str, device_manufacturer: str):
+        super().__init__(device_id, device_type, device_manufacturer)
+        self.value = None
+        self.unit = None
+        self.timestamp = None  # Aggiunto timestamp
 
-    def __str__(self):
-        return f"Sensor(id={self.id}, type={self.type}, manufacturer={self.manufacturer}, timestamp={self.timestamp})"
-
-    def __repr__(self):
-        return str(self)
-
-    @abstractmethod
-    def measure(self):
-        pass
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "type": self.type,
-            "manufacturer": self.manufacturer,
-            "value": self.value,
-            "timestamp": self.timestamp.isoformat()
-        }
+    def update_measurement(self):
+        raise NotImplementedError("Questo metodo deve essere implementato dalle sottoclassi.")

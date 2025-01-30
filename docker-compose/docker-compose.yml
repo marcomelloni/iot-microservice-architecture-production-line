@@ -1,19 +1,6 @@
 version: "3.8"
 
 services:
-  my-mosquitto-broker:
-    container_name: my-mosquitto-broker
-    image: eclipse-mosquitto:2.0.12
-    ports:
-      - "1883:1883"
-    volumes:
-      - ${PWD}/mqtt-local-broker/mosquitto_local.conf:/mosquitto/config/mosquitto.conf
-      - ${PWD}/data:/mosquitto/data
-      - ${PWD}/log:/mosquitto/log
-    restart: always
-    networks:
-      - iot_production_line_network
-
   cloud-mosquitto-broker:
     container_name: cloud-mosquitto-broker
     image: eclipse-mosquitto:2.0.12
@@ -56,7 +43,7 @@ services:
       - ${PWD}/target_fetcher_conf.yaml:/app/fetcher_conf.yaml
     restart: always
     depends_on:
-      - my-mosquitto-broker
+      - cloud-mosquitto-broker
       - http-api
     networks:
       - iot_production_line_network
@@ -68,7 +55,7 @@ services:
       - ${PWD}/target_actuator_conf.yaml:/app/actuator_conf.yaml
     restart: always
     depends_on:
-      - my-mosquitto-broker
+      - cloud-mosquitto-broker
       - http-api
     networks:
       - iot_production_line_network

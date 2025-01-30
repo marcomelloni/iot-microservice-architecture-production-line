@@ -1,6 +1,6 @@
 class RoboticArm:
-    def __init__(self, arm_id, manufacturer):
-        self.arm_id = arm_id
+    def __init__(self, robotic_arm_id, manufacturer):
+        self.robotic_arm_id = robotic_arm_id
         self.manufacturer = manufacturer
         self._state = "idle"
         self.joints = []
@@ -14,7 +14,7 @@ class RoboticArm:
 
     def serialize(self):
         return {
-            "arm_id": self.arm_id,
+            "arm_id": self.robotic_arm_id,
             "manufacturer": self.manufacturer,
             "state": self._state,
             "joints": [joint.serialize() for joint in self.joints],

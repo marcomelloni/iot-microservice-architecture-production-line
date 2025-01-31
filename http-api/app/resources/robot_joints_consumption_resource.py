@@ -3,6 +3,7 @@ from flask_restful import Resource
 from dto.joint_entity_response import JointEntityResponse
 from model.joints_model import JointsModel
 from datetime import datetime
+from model.robot_arm_model import RobotArmModel
 
 class RobotJointsConsumptionResource(Resource):
     """Resource to manage the consumption of joints for a specific robot arm"""
@@ -27,29 +28,41 @@ class RobotJointsConsumptionResource(Resource):
         return joint_data_list, 200
 
     def post(self, robot_id):
-        """POST new joint consumption data for a specific robot arm"""
+        """POST multiple joint consumption data for a specific robot arm"""
         
         data = request.get_json()
         
         # Validation of the received data
         try:
-            joint_id = data['joint_id']
-            consumption = data['consumption']
-            timestamp = data['timestamp']
-            joint = JointsModel(joint_id, consumption, timestamp)
+            # Assumiamo che la richiesta contenga una lista di joint
+            joints_data = data['joints']  # Lista di joint da aggiungere o aggiornare
         except KeyError as e:
             return {"message": f"Missing key: {e}"}, 400
         except ValueError as e:
             return {"message": str(e)}, 400
 
-        # Add the joint data to the DataManager
-        robot_arm = self.data_manager.get_robot_arm(robot_id)  # Changed here to use get_robot_arm
+        # Get the robot arm data
+        robot_arm = self.data_manager.get_robot_arm(robot_id)
         if not robot_arm:
-            return {"message": "Robot not found"}, 404
-        
-        if joint.joint_id in robot_arm.joints:
-            self.data_manager.update_joint_to_robot(robot_id, joint)
-            return {"message": "Joint already exists, data updated successfully"}, 201
-        else:
-            self.data_manager.add_joint_to_robot(robot_id, joint) 
-            return {"message": "Joint consumption data added successfully"}, 201
+            # Se il robot non esiste, lo creiamo
+            # Supponiamo che ogni braccio robotico abbia un produttore di default, puoi personalizzarlo
+            robot_arm = RobotArmModel(arm_id=robot_id, manufacturer="DefaultManufacturer")
+            self.data_manager.add_robot_arm(robot_arm)
+
+        # Process each joint in the list
+        for joint_data in joints_data:
+            try:
+                joint_id = joint_data['joint_id']
+                consumption = joint_data['consumption']
+                timestamp = joint_data['timestamp']
+                joint = JointsModel(joint_id, consumption, timestamp)
+            except KeyError as e:
+                return {"message": f"Missing key: {e}"}, 400
+            except ValueError as e:
+                return {"message": str(e)}, 400
+            
+            # Add the joint to the robot arm
+            self.data_manager.add_joint_to_robot(robot_id, joint)
+
+        return {"message": "Joint consumption data processed successfully"}, 201
+

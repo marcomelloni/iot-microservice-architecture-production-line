@@ -2,6 +2,7 @@ import json
 import requests
 import paho.mqtt.client as mqtt
 import yaml
+import time
 
 # Default Values
 CONF_FILE_PATH = "fetcher_conf.yaml"
@@ -46,30 +47,55 @@ def on_message(client, userdata, msg):
             payload = json.loads(msg.payload.decode())
             robot_id = msg.topic.split('/')[1]
             message = msg.topic.split('/')[3]
+            # print(f'{robot_id} - {message} - {payload}')
             
             if message == "joints_consumption":
                 target_url = f"{api_url}/{robot_id}/telemetry/joints_consumption"
-                response = requests.post(target_url, json=payload)
+                payload_desired = {
+                    "joints": [
+                        {
+                            "joint_id": joint["joint_id"],  # Mantieni il joint_id originale
+                            "consumption": joint["consumption"],
+                            "timestamp": joint["timestamp"]
+                        }
+                        for sensor in payload['joint_consumption_sensors']
+                        for joint in sensor['joints']
+                    ]
+                }
+
+                response = requests.post(target_url, json=payload_desired)
                 print(f"POST request to {target_url} with payload {payload} returned {response.status_code}")
+                time.sleep(1)
                 
                 # Publish message to MQTT broker for MQTT Fault Prevention Actuator
-                mqtt_topic_publish = f"robot/{robot_id}/data/joints_consumption"
-                data = payload
-                client.publish(mqtt_topic_publish, json.dumps(data))
-                print(f"Published message to {mqtt_topic_publish} with payload {data}")
+                # mqtt_topic_publish = f"robot/{robot_id}/data/joints_consumption"
+                # data = payload
+                # client.publish(mqtt_topic_publish, json.dumps(data))
+                # print(f"Published message to {mqtt_topic_publish} with payload {data}")
                 
-            elif message == "grip_ee":
-                # Send POST request to API to update the weight_ee value
+            elif message == "grip":
                 target_url = f"{api_url}/{robot_id}/telemetry/weight_ee"
                 weight = payload #convert from grip value to weight
-                response = requests.post(target_url, json=weight)
+                grip_force_newton = payload['grip_sensors'][0]['grip_force_newton']
+                gravitational_constant = 9.81  # Accelerazione di gravità in m/s^2
+
+                # Conversione da Newton a kg
+                weight_kg = grip_force_newton / gravitational_constant
+
+                # Creazione del payload desiderato
+                payload_desired = {
+                    "weight_ee": round(weight_kg, 2)  # Arrotondato a 2 decimali
+                }
+
+                response = requests.post(target_url, json=payload_desired)
                 print(f"POST request to {target_url} with payload {weight} returned {response.status_code}")
+                time.sleep(1)
                 
                 # Publish message to MQTT broker for MQTT Fault Prevention Actuator
-                mqtt_topic_publish = f"robot/{robot_id}/data/weight_ee"
-                data = payload
-                client.publish(mqtt_topic_publish, json.dumps(data))
-                print(f"Published message to {mqtt_topic_publish} with payload {data}")
+                # mqtt_topic_publish = f"robot/{robot_id}/data/weight_ee"
+                # data = payload
+                # client.publish(mqtt_topic_publish, json.dumps(data))
+                # print(f"Published message to {mqtt_topic_publish} with payload {data}")
                 
             else:
                 print(f"Unknown message type: {message}")
@@ -86,3 +112,6 @@ client.connect(mqtt_broker_host, mqtt_broker_port, 60)
 
 # Start the MQTT loop
 client.loop_forever()
+
+
+

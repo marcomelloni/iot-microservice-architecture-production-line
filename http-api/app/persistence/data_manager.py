@@ -35,7 +35,7 @@ class DataManager:
         for robot in self.robot_arm_list:
             if robot.arm_id == arm_id:
                 return robot
-        raise KeyError(f"Robot arm with ID {arm_id} not found.")
+        return None
 
     def get_all_robot_arms(self) -> list:
         """
@@ -61,24 +61,6 @@ class DataManager:
             robot.add_joint(new_joint.joint_id, new_joint)  # Add joint to the robot arm
         else:
             raise TypeError("Error adding new Joint! Only JointsModel are allowed!")
-        
-    def update_joint_to_robot(self, arm_id: str, updated_joint: JointsModel):
-        """
-        Update a new joint to a specific robot arm by associating it with the robot's arm.
-
-        :param arm_id: The ID of the robot arm to which the joint should be added.
-        :param new_joint: The new joint object to be added.
-        :raises TypeError: If the object is not an instance of JointsModel.
-        :raises KeyError: If no robot arm with the given ID exists.
-        """
-        if isinstance(updated_joint, JointsModel):
-            robot = self.get_robot_arm(arm_id)  # Get the robot arm by ID
-            robot.update_joint(updated_joint.joint_id, updated_joint)  # Add joint to the robot arm
-        else:
-            raise TypeError("Error adding new Joint! Only JointsModel are allowed!")
-    
-        
-        
 
     def get_joints_for_robot(self, arm_id: str) -> list:
         """
@@ -90,19 +72,7 @@ class DataManager:
         """
         robot = self.get_robot_arm(arm_id)
         return list(robot.joints.values())  # Return all joints associated with this robot arm
-
-    def update_joint_consumption(self, joint_id: str, new_consumption: float):
-        """
-        Updates the consumption value of a specific joint.
-
-        :param joint_id: The ID of the joint to be updated.
-        :param new_consumption: The new power consumption value in watts.
-        :raises ValueError: If the consumption value is negative.
-        :raises KeyError: If the joint with the given ID does not exist.
-        """
-        joint = self.get_joint(joint_id)
-        joint.set_consumption(new_consumption)
-
+    
     # WEIGHT END EFFECTOR MANAGEMENT
 
     def set_end_effector_weight(self, arm_id: str, weight: float):

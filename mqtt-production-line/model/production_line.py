@@ -2,8 +2,7 @@ import paho.mqtt.client as mqtt
 import time
 from typing import Dict
 from model.robot_arm import RobotArm
-# from model.current_sensor import CurrentSensor
-# from model.grip_sensor import GripSensor
+import json
 
 BROKER_ADDRESS = "0.0.0.0"  # Indirizzo del broker MQTT
 BROKER_PORT = 1883  # Porta del broker (usiamo la porta standard)
@@ -46,7 +45,7 @@ class ProductionLine:
     def publish_measurement(self, sensor_data: Dict, topic: str):
         """Pubblica i dati del sensore sul topic MQTT"""
         if self.mqtt_connected:
-            self.mqtt_client.publish(topic, str(sensor_data), qos=0, retain=False)
+            self.mqtt_client.publish(topic, json.dumps(sensor_data), qos=0, retain=False)
             print(f"Pubblicato: {topic} con dati {sensor_data}")
         else:
             print("Errore: non connesso al broker MQTT.")
@@ -80,4 +79,7 @@ class ProductionLine:
                 self.publish_measurement(payload_joint_consumptions, topic_joints_consumption)
                 self.publish_measurement(payload_grip, topic_grip)
                 
+
+
+
 

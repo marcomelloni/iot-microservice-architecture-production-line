@@ -22,10 +22,6 @@ class RobotArm:
         """Aggiungi un sensore di presa al braccio robotico"""
         self.grip_sensors[sensor.device_id] = sensor
 
-    def get_joint_consumption_sensors(self):
-        """Restituisce i sensori di consumo dei giunti del braccio robotico"""
-        return list(self.joint_consumptions_sensors.values())
-
     def get_grip_sensors(self):
         """Restituisce i sensori di presa del braccio robotico"""
         return list(self.grip_sensors.values())

@@ -14,11 +14,11 @@ services:
 
   http-api:
     container_name: http-api
-    image: http_api:0.1
+    image: http-api:0.1
     ports:
       - "7070:7070"
     volumes:
-      - ${PWD}/target_api_conf.yaml:/app/conf.yaml
+      - ./target_api_conf.yaml:/app/conf.yaml
     restart: always
     networks:
       - iot_production_line_network
@@ -29,7 +29,7 @@ services:
     ports:
       - "7071:7071"
     volumes:
-      - ${PWD}/target_web_conf.yaml:/app/web_conf.yaml
+      - ./target_web_conf.yaml:/app/web_conf.yaml
     restart: always
     depends_on:
       - http-api
@@ -38,9 +38,9 @@ services:
 
   mqtt_data_fetcher:
     container_name: mqtt_data_fetcher_production_line
-    image: mqtt_data_fetcher_production_line:0.1
+    image: data-fetcher:0.1
     volumes:
-      - ${PWD}/target_fetcher_conf.yaml:/app/fetcher_conf.yaml
+      - ./target_fetcher_conf.yaml:/app/fetcher_conf.yaml
     restart: always
     depends_on:
       - cloud-mosquitto-broker

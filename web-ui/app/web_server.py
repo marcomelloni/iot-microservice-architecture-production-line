@@ -65,7 +65,11 @@ class WebServer:
         """ Get telemetry data for a specific device and render the telemetry.html template"""
         joint_consumption_values = self.http_get_production_line_joint_consumption_data(robot_id)
         print(joint_consumption_values)
-        return render_template('joint_consumption.html', joint_consumption_values=joint_consumption_values, robot_id=robot_id)
+
+        # Prepara una lista di consumi con joint_id e valore di consumo
+        joints = [{"joint_id": joint["joint_id"], "consumption": joint["consumption"]} for joint in joint_consumption_values]
+
+        return render_template('joint_consumption.html', joints=joints, robot_id=robot_id)
 
     def http_get_production_line_joint_consumption_data(self, robot_id):
         """ Get all locations from the remote server over HTTP"""

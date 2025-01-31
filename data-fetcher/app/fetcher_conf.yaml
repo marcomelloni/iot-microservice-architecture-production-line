@@ -1,4 +1,4 @@
-broker_ip: "127.0.0.1"
+broker_ip: "172.18.0.2"
 broker_port: 1883
 target_telemetry_topic: "robot/+/telemetry/#"
 device_api_url: "http://127.0.0.1:7070/api/v1/productionline/robot"

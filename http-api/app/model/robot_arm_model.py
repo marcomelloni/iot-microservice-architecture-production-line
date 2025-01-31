@@ -29,15 +29,6 @@ class RobotArmModel:
         :param joint_consumption: Joint-specific data, such as position, torque, or speed.
         """
         self.joints[joint_id] = joint_model
-        
-    def update_joint(self, joint_name: str, joint_data: JointsModel):
-        """
-        Adds or updates a joint configuration.
-
-        :param joint_id: Name of the joint (e.g., 'shoulder', 'elbow').
-        :param joint_consumption: Joint-specific data, such as position, torque, or speed.
-        """
-        self.joints[joint_name] = joint_data
 
     def set_end_effector_weight(self, weight: float):
         """

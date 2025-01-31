@@ -61,30 +61,14 @@
     <div class="card">
       <h1>Robot Joint Consumption</h1>
       <p class="robot-id">Robot ID: {{ robot_id }}</p>
+
+      <!-- Itera sui giunti per visualizzare i consumi -->
+      {% for joint in joints %}
       <div class="joint">
-        <span>Joint 1:</span>
-        <span class="value">{{ joint_consumption_values[0] }} kW</span>
+        <span>{{ joint.joint_id }}:</span>
+        <span class="value">{{ joint.consumption }} kW</span>
       </div>
-      <div class="joint">
-        <span>Joint 2:</span>
-        <span class="value">{{ joint_consumption_values[1] }} kW</span>
-      </div>
-      <div class="joint">
-        <span>Joint 3:</span>
-        <span class="value">{{ joint_consumption_values[2] }} kW</span>
-      </div>
-      <div class="joint">
-        <span>Joint 4:</span>
-        <span class="value">{{ joint_consumption_values[3] }} kW</span>
-      </div>
-      <div class="joint">
-        <span>Joint 5:</span>
-        <span class="value">{{ joint_consumption_values[4] }} kW</span>
-      </div>
-      <div class="joint">
-        <span>Joint 6:</span>
-        <span class="value">{{ joint_consumption_values[5] }} kW</span>
-      </div>
+      {% endfor %}
     </div>
   </body>
 </html>

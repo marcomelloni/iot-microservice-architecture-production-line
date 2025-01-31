@@ -3,8 +3,9 @@ from model.joint import Joint
 from model.sensor import Sensor
 
 class RobotArm:
-    def __init__(self, arm_id: str):
+    def __init__(self, arm_id: str, manufacturer: str):
         self.arm_id: str = arm_id
+        self.manufacturer: str = manufacturer
         self.joints: Dict[str, Joint] = {}  # Giunti del braccio robotico
         self.joint_consumptions_sensors: Dict[str, Sensor] = {}  # Sensori di consumo dei giunti
         self.grip_sensors: Dict[str, Sensor] = {}  # Sensori di presa

@@ -10,21 +10,19 @@ class ProductionLineResource(Resource):
         # Inject the DataManager instance
         self.data_manager = kwargs['data_manager']
 
-    def get(self, device_id):
+    def get(self):
         """GET all robot arms in the production line"""
+        
         result_robot_list = []
-        for robot in self.data_manager.robot_arm_list.values():
-            robot_entity_response =  RobotArmEntityResponse(robot.uuid,
-                                                            robot.name,
-                                                            robot.locationId,
-                                                            robot.manufacturer,
-                                                            robot.software_version,
-                                                            robot.latitude,
-                                                            robot.longitude,
-                                                            robot.arm_length)
+        
+        # Itera attraverso tutti i robot nella lista
+        for robot in self.data_manager.robot_arm_list:
+            # Usa number_of_joints per ottenere il numero di giunti
+            robot_entity_response = RobotArmEntityResponse(
+                robot.arm_id,
+                robot.manufacturer,
+                robot.number_of_joints  
+            )
             result_robot_list.append(robot_entity_response.__dict__)
+
         return result_robot_list, 200
-
-    def post(self, device_id):
-       return '', 501
-

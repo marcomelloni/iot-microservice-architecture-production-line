@@ -1,59 +1,136 @@
-from model.joint_model import JointConsumptionDTO
-from model.weight_ee_model import WeightEndEffectorDTO
 from model.robot_arm_model import RobotArmModel
+from model.joints_model import JointsModel
+
 class DataManager:
     """DataManager class to manage the robot arms of the production line and their data"""
     
-    robot_arm_list = []
-    joint_dictionary = {}
-    weight_end_effector_dictionary = {}
+    def __init__(self):
+        """Initialize DataManager with empty data structures"""
+        self.robot_arm_list = []  # List to store all robot arms
+        self.joint_dictionary = {}  # Dictionary to store all joints by UUID
+        self.weight_end_effector_dictionary = {}  # Dictionary to store end effector weight by robot ID
 
     # ROBOT ARM MANAGEMENT
-    def add_robot_arm(self, new_robot_arm):
-        # Check the correct instance for the variable new_robot_arm
+
+    def add_robot_arm(self, new_robot_arm: RobotArmModel):
+        """
+        Adds a new robot arm to the robot_arm_list.
+
+        :param new_robot_arm: The new robot arm object to be added.
+        :raises TypeError: If the object is not an instance of RobotArmModel.
+        """
         if isinstance(new_robot_arm, RobotArmModel):
             self.robot_arm_list.append(new_robot_arm)
         else:
-            raise TypeError("Error adding new Robot Arm ! Only RobotArmDTO are allowed !")
+            raise TypeError("Error adding new Robot Arm! Only RobotArmModel are allowed!")
 
-    def add_joint(self, new_joint):
-        # Check the correct instance for the variable new_joint
-        if isinstance(new_joint, JointConsumptionDTO):
-            self.joint_dictionary[new_joint.uuid] = new_joint
+    def get_robot_arm(self, arm_id: str) -> RobotArmModel:
+        """
+        Retrieves a robot arm by its ID.
+
+        :param arm_id: The ID of the robot arm.
+        :return: The robot arm object if found.
+        :raises KeyError: If no robot arm with the given ID exists.
+        """
+        for robot in self.robot_arm_list:
+            if robot.arm_id == arm_id:
+                return robot
+        raise KeyError(f"Robot arm with ID {arm_id} not found.")
+
+    def get_all_robot_arms(self) -> list:
+        """
+        Retrieves all robot arms.
+
+        :return: List of all robot arm objects.
+        """
+        return self.robot_arm_list
+
+    # JOINT MANAGEMENT
+
+    def add_joint_to_robot(self, arm_id: str, new_joint: JointsModel):
+        """
+        Adds a new joint to a specific robot arm by associating it with the robot's arm.
+
+        :param arm_id: The ID of the robot arm to which the joint should be added.
+        :param new_joint: The new joint object to be added.
+        :raises TypeError: If the object is not an instance of JointsModel.
+        :raises KeyError: If no robot arm with the given ID exists.
+        """
+        if isinstance(new_joint, JointsModel):
+            robot = self.get_robot_arm(arm_id)  # Get the robot arm by ID
+            robot.add_joint(new_joint.joint_id, new_joint)  # Add joint to the robot arm
         else:
-            raise TypeError("Error adding new Joint ! Only JointModel are allowed !")
+            raise TypeError("Error adding new Joint! Only JointsModel are allowed!")
+        
+    def update_joint_to_robot(self, arm_id: str, updated_joint: JointsModel):
+        """
+        Update a new joint to a specific robot arm by associating it with the robot's arm.
 
-    def update_joint(self, updated_joint):
-        # Check the correct instance for the variable updated_joint
-        if isinstance(updated_joint, JointConsumptionDTO):
-            self.joint_dictionary[updated_joint.uuid] = updated_joint
+        :param arm_id: The ID of the robot arm to which the joint should be added.
+        :param new_joint: The new joint object to be added.
+        :raises TypeError: If the object is not an instance of JointsModel.
+        :raises KeyError: If no robot arm with the given ID exists.
+        """
+        if isinstance(updated_joint, JointsModel):
+            robot = self.get_robot_arm(arm_id)  # Get the robot arm by ID
+            robot.update_joint(updated_joint.joint_id, updated_joint)  # Add joint to the robot arm
         else:
-            raise TypeError("Error updating the Joint ! Only JointModel are allowed !")
+            raise TypeError("Error adding new Joint! Only JointsModel are allowed!")
+    
+        
+        
 
-    def remove_joint(self, joint_uuid):
-        if joint_uuid in self.joint_dictionary.keys():
-            del self.joint_dictionary[joint_uuid]
+    def get_joints_for_robot(self, arm_id: str) -> list:
+        """
+        Retrieves all joints associated with a specific robot arm.
+
+        :param arm_id: The ID of the robot arm.
+        :return: List of joint objects associated with the robot arm.
+        :raises KeyError: If no robot arm with the given ID exists.
+        """
+        robot = self.get_robot_arm(arm_id)
+        return list(robot.joints.values())  # Return all joints associated with this robot arm
+
+    def update_joint_consumption(self, joint_id: str, new_consumption: float):
+        """
+        Updates the consumption value of a specific joint.
+
+        :param joint_id: The ID of the joint to be updated.
+        :param new_consumption: The new power consumption value in watts.
+        :raises ValueError: If the consumption value is negative.
+        :raises KeyError: If the joint with the given ID does not exist.
+        """
+        joint = self.get_joint(joint_id)
+        joint.set_consumption(new_consumption)
 
     # WEIGHT END EFFECTOR MANAGEMENT
-    def add_weight_end_effector(self, new_weight_end_effector):
-        # Check the correct instance for the variable new_weight_end_effector
-        if isinstance(new_weight_end_effector, WeightEndEffectorDTO):
-            self.weight_end_effector_dictionary[new_weight_end_effector.uuid] = new_weight_end_effector
-        else:
-            raise TypeError("Error adding new Weight End Effector ! Only WeightEndEffectorDTO are allowed !")
 
-    def update_weight_end_effector(self, updated_weight_end_effector):
-        # Check the correct instance for the variable updated_weight_end_effector
-        if isinstance(updated_weight_end_effector, WeightEndEffectorDTO):
-            self.weight_end_effector_dictionary[updated_weight_end_effector.uuid] = updated_weight_end_effector
-        else:
-            raise TypeError("Error updating the Weight End Effector ! Only WeightEndEffectorDTO are allowed !")
+    def set_end_effector_weight(self, arm_id: str, weight: float):
+        """
+        Sets the end effector weight for a specific robot arm.
 
-    def remove_weight_end_effector(self, weight_end_effector_uuid):
-        if weight_end_effector_uuid in self.weight_end_effector_dictionary.keys():
-            del self.weight_end_effector_dictionary[weight_end_effector_uuid]
-    """
-    DataManager class is responsible for managing the data of the application.
-    Abstracts the data storage and retrieval operations.
-    In this implementation everything is stored in memory.
-    """
+        :param arm_id: The ID of the robot arm.
+        :param weight: The weight of the end effector in kilograms.
+        :raises ValueError: If the weight is negative.
+        :raises KeyError: If no robot arm with the given ID exists.
+        """
+        if weight < 0:
+            raise ValueError("Weight cannot be negative.")
+        
+        robot = self.get_robot_arm(arm_id)
+        robot.set_end_effector_weight(weight)
+
+        # Store the weight in the dictionary
+        self.weight_end_effector_dictionary[arm_id] = weight
+
+    def get_end_effector_weight(self, arm_id: str) -> float:
+        """
+        Retrieves the end effector weight for a specific robot arm.
+
+        :param arm_id: The ID of the robot arm.
+        :return: The weight of the end effector.
+        :raises KeyError: If no weight is set for the robot arm.
+        """
+        if arm_id in self.weight_end_effector_dictionary:
+            return self.weight_end_effector_dictionary[arm_id]
+        raise KeyError(f"No end effector weight set for robot arm with ID {arm_id}.")

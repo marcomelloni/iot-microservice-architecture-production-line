@@ -1,13 +1,20 @@
-from .. .model.joint_model import JointConsumptionDTO
-from .. .model.weight_ee_model import WeightEndEffectorDTO
-
-
+from model.joint_model import JointConsumptionDTO
+from model.weight_ee_model import WeightEndEffectorDTO
+from model.robot_arm_model import RobotArmModel
 class DataManager:
-
+    """DataManager class to manage the robot arms of the production line and their data"""
+    
+    robot_arm_list = []
     joint_dictionary = {}
     weight_end_effector_dictionary = {}
 
-    # JOINT MANAGEMENT
+    # ROBOT ARM MANAGEMENT
+    def add_robot_arm(self, new_robot_arm):
+        # Check the correct instance for the variable new_robot_arm
+        if isinstance(new_robot_arm, RobotArmModel):
+            self.robot_arm_list.append(new_robot_arm)
+        else:
+            raise TypeError("Error adding new Robot Arm ! Only RobotArmDTO are allowed !")
 
     def add_joint(self, new_joint):
         # Check the correct instance for the variable new_joint

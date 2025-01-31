@@ -39,9 +39,19 @@ print("Starting HTTP RESTful API Server ...")
 data_manager = DataManager()
 
 # Add Resources and Endpoints
-api.add_resource(ProductionLineDataResource, configuration_dict['rest']['api_prefix'] + '/robot/<string:robot_id>/telemetry/#',
+api.add_resource(ProductionLineDataResource, configuration_dict['rest']['api_prefix'] + '/robot',
                       resource_class_kwargs={'data_manager': data_manager},
-                      endpoint="production_line_data",
+                      endpoint="productionline",
+                      methods=['GET'])
+
+api.add_resource(ProductionLineDataResource, configuration_dict['rest']['api_prefix'] + '/robot/<string:robot_id>/telemetry/joints_consumption',
+                      resource_class_kwargs={'data_manager': data_manager},
+                      endpoint="robot_joints_consumption",
+                      methods=['GET', 'POST'])
+
+api.add_resource(ProductionLineDataResource, configuration_dict['rest']['api_prefix'] + '/robot/<string:robot_id>/telemetry/weight_ee',
+                      resource_class_kwargs={'data_manager': data_manager},
+                      endpoint="robot_weight_ee",
                       methods=['GET', 'POST'])
 
 if __name__ == '__main__':

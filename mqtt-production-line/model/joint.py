@@ -7,12 +7,12 @@ from datetime import datetime
 class Joint:
     def __init__(self, joint_id: str):
         self.joint_id: str = joint_id
-        self.consumption: float = 0.0
+        self.consumption: float = random.uniform(98.0, 98.0)  # Inizializza con un valore casuale
         self.timestamp: datetime = None
 
     def update_consumption(self):
-        """Simula un aumento del consumo per il giunto"""
-        self.consumption += random.uniform(0.1, 1.0)  # Aumenta il consumo in modo casuale
+        """Simula un aumento casuale del consumo per il giunto"""
+        self.consumption += random.uniform(0.01, 0.1)  # Aumenta casualmente tra i due numeri
         self.timestamp = datetime.utcnow()
 
     def reset(self):

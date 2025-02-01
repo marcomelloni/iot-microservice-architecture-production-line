@@ -1,6 +1,7 @@
 import paho.mqtt.client as mqtt
 from model.production_line import ProductionLine
 import json
+import time
 
 # Define the callback for when the client receives a CONNACK response from the server
 def on_connect(client, userdata, flags, rc):
@@ -20,14 +21,15 @@ def on_message(client, userdata, message):
             # Decode the message payload as a string
             message_payload = message.payload.decode("utf-8")
             payload_data = json.loads(message_payload)  # Assume the payload is JSON-encoded
+
+            # If payload_data is a boolean, directly use it.
+            if isinstance(payload_data, bool):  
+                if payload_data:  # Check if it's True
+                    production_line.deactivate()
+                    time.sleep(5)
+                    print("Production line deactivated.")
             
             print(f"Received message on topic {message.topic}: {payload_data}")
-
-            # Check if the message contains a command to stop the production line
-            if payload_data.get("value") == True:
-                # Call deactivate on the production line if the value is True
-                production_line.deactivate()
-                print("Production line deactivated.")
 
         except json.JSONDecodeError:
             print("Error decoding JSON payload.")
@@ -38,8 +40,7 @@ broker_ip = "127.0.0.1"  # Broker IP address
 broker_port = 1883  # Broker port
 target_topic_filter = "production_line/control/stop"  # Topic to listen for the stop command
 
-# Assuming you have a ProductionLine instance that you want to control
-production_line = ProductionLine("PL_001")
+from production_line_producer import production_line
 
 # Create a new MQTT Client
 mqtt_client = mqtt.Client(client_id)

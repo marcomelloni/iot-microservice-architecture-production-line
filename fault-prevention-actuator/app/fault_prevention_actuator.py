@@ -9,7 +9,7 @@ CONF_FILE_PATH = "actuator_conf.yaml"
 configuration_dict = {
     "broker_ip": "127.0.0.1",
     "broker_port": 1883,
-    "target_telemetry_topic": "robot/+/data/#"
+    "target_telemetry_topic": "robot/+/telemetry/#"
 }
 
 # Read Configuration from target Configuration File Path
@@ -34,24 +34,31 @@ def on_connect(client, userdata, flags, rc):
     print("Connected to MQTT Broker with result code " + str(rc))
     client.subscribe(mqtt_topic)
 
-def on_message(client, userdata, msg):
+robot_consumption_data = {}
+total_consumption_all_robots = 0  # Variable to store total consumption of all robots
 
-    if mqtt.topic_matches_sub(mqtt_topic, msg.topic):
+def on_message(client, userdata, msg):
+    if mqtt.topic_matches_sub(mqtt_topic, msg.topic):  # Check the MQTT topic
         try:
+            # Decode the incoming MQTT message
             payload = json.loads(msg.payload.decode())
             robot_id = msg.topic.split('/')[1]
             message = msg.topic.split('/')[3]
-            # add the functionalities of the actuator here
-            
-            health = 100
-            
-            if health < 20:
-                mqtt_topic_publish = "production_line/control/stop"
-                value = True
-                client.publish(mqtt_topic_publish, json.dumps(value))
-                print(f"Published message to {mqtt_topic_publish} with payload {data}")
-            
-            
+
+            if message == "joints_consumption":
+                # Extract joint consumption data from the payload
+                for sensor in payload.get('joint_consumption_sensors', []):
+                    for joint in sensor.get('joints', []):
+                        consumption = joint.get('consumption', 0)
+                        joint_id = joint.get('joint_id', 'N/A')
+                        if consumption > 100:
+                            # If consumption exceeds 100, send a stop signal
+                            mqtt_topic_publish = "production_line/control/stop"
+                            value = True
+                            client.publish(mqtt_topic_publish, json.dumps(value), qos=2)
+                            print(f"Published message to {mqtt_topic_publish} with payload {value} because {robot_id} - {joint_id} consumed {consumption} kW")
+                            return  # Stop after publishing once
+
         except Exception as e:
             print(f"Error processing MQTT message: {str(e)}")
 
@@ -65,3 +72,4 @@ client.connect(mqtt_broker_host, mqtt_broker_port, 60)
 
 # Start the MQTT loop
 client.loop_forever()
+      

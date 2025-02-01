@@ -27,8 +27,7 @@ class CurrentSensor(Sensor):
     def _auto_update(self):
         """Aggiorna i dati ogni secondo SOLO SE la linea di produzione è attiva"""
         while self.running:
-            if self.production_line.active:  # Controlla lo stato della linea di produzione
-                self.update_measurement()
+            self.update_measurement()
             time.sleep(1)  # Aspetta 1 secondo
 
     def update_measurement(self):

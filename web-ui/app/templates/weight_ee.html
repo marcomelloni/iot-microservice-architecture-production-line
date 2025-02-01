@@ -7,49 +7,45 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        margin: 0;
+        margin: 20px;
         padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-      }
-      .card {
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
         text-align: center;
-        width: 300px;
+        background-color: #f9f9f9;
       }
-      .card h1 {
-        font-size: 1.5rem;
-        color: #333;
+      .container {
+        max-width: 400px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border: 1px solid #ccc;
+      }
+      h2 {
         margin-bottom: 20px;
       }
-      .card p {
-        font-size: 1.2rem;
-        color: #555;
-        margin: 10px 0;
+      .data {
+        font-size: 1.2em;
+        margin-bottom: 10px;
       }
-      .card .robot-id {
-        font-size: 1rem;
-        color: #888;
-      }
-      .card .weight-value {
-        font-size: 2rem;
-        color: #007bff;
-        font-weight: bold;
+      .btn {
+        display: inline-block;
+        padding: 10px 15px;
+        text-decoration: none;
+        border: 1px solid #000;
+        color: #000;
+        background-color: #e0e0e0;
+        margin: 10px;
+        cursor: pointer;
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>Robot Weight Capacity</h1>
-      <p class="robot-id">Robot ID: {{ robot_id }}</p>
-      <p>End Effector Weight Supported:</p>
-      <p class="weight-value">{{ weight_value['weight_ee'] }} kg</p>
+    <div class="container">
+      <h2>Robot Weight Capacity</h2>
+      <p class="data">Robot ID: {{ robot_id }}</p>
+      <p class="data">
+        End Effector Weight: <strong>{{ weight_value['weight_ee'] }} kg</strong>
+      </p>
+      <a href="/robots" class="btn">Back</a>
     </div>
   </body>
 </html>

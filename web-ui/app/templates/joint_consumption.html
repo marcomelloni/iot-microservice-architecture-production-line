@@ -3,72 +3,51 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Robot Joint Consumption</title>
+    <title>Robot Data</title>
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        margin: 0;
+        margin: 20px;
         padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-      }
-      .card {
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        width: 400px;
         text-align: center;
+        background-color: #f9f9f9;
       }
-      .card h1 {
-        font-size: 1.5rem;
-        color: #333;
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border: 1px solid #ccc;
+      }
+      h2 {
         margin-bottom: 20px;
       }
-      .card p {
-        font-size: 1.2rem;
-        color: #555;
-        margin: 10px 0;
+      .data {
+        font-size: 1.2em;
+        margin-bottom: 10px;
       }
-      .card .robot-id {
-        font-size: 1rem;
-        color: #888;
-        margin-bottom: 15px;
-      }
-      .card .joint {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-      }
-      .card .joint:last-child {
-        border-bottom: none;
-      }
-      .card .joint span {
-        font-size: 1rem;
-        color: #333;
-      }
-      .card .joint .value {
-        color: #007bff;
-        font-weight: bold;
+      .btn {
+        display: inline-block;
+        padding: 10px 15px;
+        text-decoration: none;
+        border: 1px solid #000;
+        color: #000;
+        background-color: #e0e0e0;
+        margin: 10px;
+        cursor: pointer;
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>Robot Joint Consumption</h1>
-      <p class="robot-id">Robot ID: {{ robot_id }}</p>
-
-      <!-- Itera sui giunti per visualizzare i consumi -->
+    <div class="container">
+      <h2>Robot Joint Consumption</h2>
+      <p class="data">Robot ID: {{ robot_id }}</p>
       {% for joint in joints %}
-      <div class="joint">
-        <span>{{ joint.joint_id }}:</span>
-        <span class="value">{{ joint.consumption }} kW</span>
-      </div>
+      <p class="data">
+        {{ joint.joint_id }}: <strong>{{ joint.consumption }} kW</strong>
+      </p>
       {% endfor %}
+      <a href="/robots" class="btn">Back</a>
     </div>
   </body>
 </html>

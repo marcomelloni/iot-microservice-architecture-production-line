@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Production Line Robots</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        padding: 0;
+        text-align: center;
+        background-color: #f9f9f9;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #fff;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+      th {
+        background-color: #f0f0f0;
+      }
+      .btn {
+        display: inline-block;
+        padding: 5px 10px;
+        text-decoration: none;
+        border: 1px solid #000;
+        color: #000;
+        background-color: #e0e0e0;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Production Line Robots</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Arm ID</th>
+          <th>Manufacturer</th>
+          <th>Number of Joints</th>
+          <th>WEIGHT_EE</th>
+          <th>JOINTS_CONSUMPTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for robot in value %}
+        <tr>
+          <td>{{ robot.arm_id }}</td>
+          <td>{{ robot.manufacturer }}</td>
+          <td>{{ robot.number_of_joints }}</td>
+          <td>
+            <a href="robot/{{ robot.arm_id }}/telemetry/weight_ee" class="btn"
+              >WEIGHT_EE</a
+            >
+          </td>
+          <td>
+            <a
+              href="robot/{{ robot.arm_id }}/telemetry/joints_consumption"
+              class="btn"
+              >JOINTS_CONSUMPTION</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>

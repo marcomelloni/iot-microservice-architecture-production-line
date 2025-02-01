@@ -9,6 +9,7 @@ BROKER_PORT = 1883  # Porta del broker (usiamo la porta standard)
 MQTT_USERNAME = "iot-project-Melloni-Angelini-Morselli"  # Sostituisci con il tuo username
 MQTT_PASSWORD = "password"  # Sostituisci con la tua password
 MQTT_BASIC_TOPIC = f"robot"  # Topic base
+import threading
 
 class ProductionLine:
     def __init__(self, line_id: str):
@@ -28,6 +29,14 @@ class ProductionLine:
         for robot_arm in self.robot_arms.values():
             robot_arm.reset()
         print(f"Linea di produzione {self.line_id} disattivata.")
+        self.stop_mqtt_client()
+        
+        # Ferma anche il ciclo di monitoraggio
+        print("Ciclo di monitoraggio fermato.")
+        time.sleep(5)
+        self.activate()
+        self.start_mqtt_client()
+        self.monitor_and_publish()
 
     def activate(self):
         """Attiva la linea di produzione"""
@@ -64,22 +73,28 @@ class ProductionLine:
             self.mqtt_client.loop_stop()
             self.mqtt_client.disconnect()
             print("Client MQTT disconnesso.")
-    
+
     def monitor_and_publish(self):
-        """Simulate monitoring sensors and publish the data to the appropriate MQTT topics"""
-        while self.active:
-            for robot_arm in self.robot_arms.values():
-                
-                payload_joint_consumptions = robot_arm.get_json_joint_consumptions()        
-                payload_grip = robot_arm.get_json_grip()
-                
-                topic_joints_consumption = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/joints_consumption"
-                topic_grip = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/grip"
-                
-                self.publish_measurement(payload_joint_consumptions, topic_joints_consumption)
-                self.publish_measurement(payload_grip, topic_grip)
-                
+        """Simula il monitoraggio dei sensori e pubblica i dati sui topic MQTT appropriati"""
+        def monitor():
+            while self.active:  # Continua solo se la linea è attiva
+                for robot_arm in self.robot_arms.values():
+                    for joint in robot_arm.joints.values():
+                        joint.update_consumption()  # Ogni giunto cambia consumo casualmente
 
+                    payload_joint_consumptions = robot_arm.get_json_joint_consumptions()        
+                    payload_grip = robot_arm.get_json_grip()
+                    
+                    topic_joints_consumption = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/joints_consumption"
+                    topic_grip = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/grip"
+                    
+                    self.publish_measurement(payload_joint_consumptions, topic_joints_consumption)
+                    self.publish_measurement(payload_grip, topic_grip)
 
+                # Pausa per evitare un'alta frequenza di pubblicazione
+                time.sleep(1)  # Pausa di 1 secondo per ridurre la frequenza di pubblicazione
 
+            print("Monitoraggio fermato.")
 
+        # Avvia il monitoraggio in un thread separato
+        threading.Thread(target=monitor, daemon=True).start()

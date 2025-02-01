@@ -39,7 +39,7 @@ class WebServer:
         # Add URL rules to the Flask app mapping the URL to the function
         self.app.add_url_rule('/robot/<string:robot_id>/telemetry/joints_consumption', 'joint_consumption', self.joint_consumption)
         self.app.add_url_rule('/robot/<string:robot_id>/telemetry/weight_ee', 'weight_ee', self.weight_ee)
-        self.app.add_url_rule('/', 'index', self.index)
+        self.app.add_url_rule('/robots', 'robots', self.robots)
 
     def read_configuration_file(self):
         """ Read Configuration File for the Web Server
@@ -57,10 +57,6 @@ class WebServer:
 
         print("Read Configuration from file ({}): {}".format(self.config_file, self.configuration_dict))
         
-    def index(self):
-        """ Render the index.html template"""
-        return render_template('index.html')
-
     def joint_consumption(self, robot_id):
         """ Get telemetry data for a specific device and render the telemetry.html template"""
         joint_consumption_values = self.http_get_production_line_joint_consumption_data(robot_id)
@@ -85,7 +81,7 @@ class WebServer:
         return response_string.json()
 
     def weight_ee(self, robot_id):
-        """ Get all devices for a specific location and render the devices.html template"""
+        """ Get the weight supported by the end effector of a robot"""
         weight_value = self.http_get_production_line_weight_ee_data(robot_id)
         return render_template('weight_ee.html', weight_value=weight_value, robot_id=robot_id)
 
@@ -95,6 +91,24 @@ class WebServer:
         # Get the base URL from the configuration
         base_http_url = self.configuration_dict['web']['api_base_url']
         target_url = f'{base_http_url}/robot/{robot_id}/telemetry/weight_ee'
+
+        # Send the GET request
+        response_string = requests.get(target_url)
+
+        # Return the JSON response
+        return response_string.json()
+
+    def robots(self):
+        """ Get all robots"""
+        robots = self.http_get_robots_data()
+        return render_template('robots.html', value=robots)
+
+    def http_get_robots_data(self):
+        """ Get all devices for the target location_id from the remote server over HTTP"""
+
+        # Get the base URL from the configuration
+        base_http_url = self.configuration_dict['web']['api_base_url']
+        target_url = f'{base_http_url}/robots'
 
         # Send the GET request
         response_string = requests.get(target_url)

@@ -73,7 +73,7 @@ grip_sensor_3.start_auto_update()
 
 # Simulazione di attivazione/disattivazione della linea di produzione
 # production_line.deactivate()  # Disattiva la linea di produzione (il sensore si ferma)
-# time.sleep(5)
+time.sleep(5)
 production_line.activate()  # Riattiva la linea di produzione (il sensore riparte)
 # time.sleep(5)
 

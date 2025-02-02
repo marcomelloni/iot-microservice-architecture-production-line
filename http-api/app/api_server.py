@@ -4,6 +4,7 @@ from persistence.data_manager import DataManager
 from resources.production_line_resource import ProductionLineResource
 from resources.robot_joints_consumption_resource import RobotJointsConsumptionResource
 from resources.robot_weight_ee_resource import RobotWeightEEResource
+from resources.fault_actuator_resource import FaultActuatorResource
 import yaml
 from model.robot_arm_model import RobotArmModel
 from model.joints_model import JointsModel
@@ -63,6 +64,12 @@ api.add_resource(RobotWeightEEResource,
                   endpoint="robot_weight_ee",
                   methods=['GET', 'POST'])
 
+
+api.add_resource(FaultActuatorResource, 
+                  configuration_dict['rest']['api_prefix'] + '/robot/faults',
+                  resource_class_kwargs={'data_manager': data_manager},
+                  endpoint="fault_actuator",
+                  methods=['GET', 'POST'])
 
 if __name__ == '__main__':
 

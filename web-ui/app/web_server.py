@@ -40,6 +40,8 @@ class WebServer:
         self.app.add_url_rule('/robot/<string:robot_id>/telemetry/joints_consumption', 'joint_consumption', self.joint_consumption)
         self.app.add_url_rule('/robot/<string:robot_id>/telemetry/weight_ee', 'weight_ee', self.weight_ee)
         self.app.add_url_rule('/robots', 'robots', self.robots)
+        self.app.add_url_rule('/faults', 'faults', self.faults)
+        
 
     def read_configuration_file(self):
         """ Read Configuration File for the Web Server
@@ -109,6 +111,24 @@ class WebServer:
         # Get the base URL from the configuration
         base_http_url = self.configuration_dict['web']['api_base_url']
         target_url = f'{base_http_url}/robots'
+
+        # Send the GET request
+        response_string = requests.get(target_url)
+
+        # Return the JSON response
+        return response_string.json()
+
+    def faults(self):
+        """ Get all Faults"""
+        faults = self.http_get_faults_data()
+        return render_template('faults.html', value=faults)
+    
+    def http_get_faults_data(self):
+        """ Get all devices for the target location_id from the remote server over HTTP"""
+
+        # Get the base URL from the configuration
+        base_http_url = self.configuration_dict['web']['api_base_url']
+        target_url = f'{base_http_url}/robot/faults'
 
         # Send the GET request
         response_string = requests.get(target_url)

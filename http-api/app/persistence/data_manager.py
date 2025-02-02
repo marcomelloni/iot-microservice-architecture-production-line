@@ -9,6 +9,7 @@ class DataManager:
         self.robot_arm_list = []  # List to store all robot arms
         self.joint_dictionary = {}  # Dictionary to store all joints by UUID
         self.weight_end_effector_dictionary = {}  # Dictionary to store end effector weight by robot ID
+        self.fault_dictionary = {}  # Dictionary to store faults by robot ID
 
     # ROBOT ARM MANAGEMENT
 
@@ -104,3 +105,24 @@ class DataManager:
         if arm_id in self.weight_end_effector_dictionary:
             return self.weight_end_effector_dictionary[arm_id]
         raise KeyError(f"No end effector weight set for robot arm with ID {arm_id}.")
+
+    # FAULT MANAGEMENT
+    
+    def set_robot_fault(self, arm_id: str, fault: str):
+        """
+        Sets a fault for a specific robot arm.
+
+        :param arm_id: The ID of the robot arm.
+        :param fault: The fault description.
+        :raises KeyError: If no robot arm with the given ID exists.
+        """
+        # Store the fault in the dictionary
+        self.fault_dictionary[arm_id] = fault
+         
+    def get_robots_fault(self):
+        """
+        Retrieves all faults.
+
+        :return: Dictionary of robot ID and fault description.
+        """
+        return self.fault_dictionary

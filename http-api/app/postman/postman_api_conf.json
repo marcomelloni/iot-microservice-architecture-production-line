@@ -2,7 +2,6 @@
   "info": {
     "_postman_id": "8323c6fb-1cbb-4200-b060-42ea34abe3ae",
     "name": "http-api-production-line-iot",
-    "description": "## **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" width=\"2162\" height=\"1530\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "34633854"
   },
@@ -144,6 +143,74 @@
       "response": []
     },
     {
+      "name": "Get Faults",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var template = `",
+              "<style type=\"text/css\">",
+              "    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+              "    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+              "    .tftable tr {background-color:#ffffff;}",
+              "    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+              "    .tftable tr:hover {background-color:#e0ffff;}",
+              "</style>",
+              "",
+              "<table class=\"tftable\" border=\"1\">",
+              "    <tr>",
+              "        <th>Joint ID</th>",
+              "        <th>Consumption</th>",
+              "        <th>Timestamp</th>",
+              "    </tr>",
+              "    ",
+              "    {{#each response}}",
+              "        <tr>",
+              "            <td>{{joint_id}}</td>",
+              "            <td>{{consumption}}</td>",
+              "            <td>{{timestamp}}</td>",
+              "        </tr>",
+              "    {{/each}}",
+              "</table>",
+              "`;",
+              "",
+              "function constructVisualizerPayload() {",
+              "    return {response: pm.response.json()}",
+              "}",
+              "",
+              "pm.visualizer.set(template, constructVisualizerPayload());"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/robot/faults",
+          "host": ["{{base_url}}"],
+          "path": ["robot", "faults"]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": []
+    },
+    {
       "name": "Get Weight End Effector for a robot arm",
       "event": [
         {
@@ -233,7 +300,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"joint_id\": \"joint_00432\",\n    \"consumption\": 12.5,\n    \"timestamp\": \"2025-01-31T14:30:00\"\n}\n",
+          "raw": "{\n    \"joint_id\": \"joint1\",\n    \"consumption\": 198.5,\n    \"timestamp\": \"2025-01-31T14:30:00\"\n}\n",
           "options": {
             "raw": {
               "language": "json"
@@ -244,6 +311,44 @@
           "raw": "{{base_url}}/robot/{{robot_id}}/telemetry/joints_consumption",
           "host": ["{{base_url}}"],
           "path": ["robot", "{{robot_id}}", "telemetry", "joints_consumption"]
+        },
+        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+      },
+      "response": []
+    },
+    {
+      "name": "Post Faults",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"robot_id\": \"RA_001\",\n    \"fault\": \"Robot RA_001 - Joint J1 consumed 105 kW at 2025-01-10\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/robot/faults",
+          "host": ["{{base_url}}"],
+          "path": ["robot", "faults"]
         },
         "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
       },

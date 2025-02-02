@@ -1,7 +1,17 @@
 import paho.mqtt.client as mqtt
-from model.production_line import ProductionLine
 import json
 import time
+from production_line_producer import production_line
+
+# Configuration variables
+client_id = "ProductionLine-Consumer"
+broker_ip = "127.0.0.1"  # Broker IP address
+broker_port = 1883  # Broker port
+target_topic_filter = "production_line/control/stop"  # Topic to listen for the stop command
+
+
+# Create a new MQTT Client
+mqtt_client = mqtt.Client(client_id)
 
 # Define the callback for when the client receives a CONNACK response from the server
 def on_connect(client, userdata, flags, rc):
@@ -34,16 +44,6 @@ def on_message(client, userdata, message):
         except json.JSONDecodeError:
             print("Error decoding JSON payload.")
 
-# Configuration variables
-client_id = "ProductionLine-Consumer"
-broker_ip = "127.0.0.1"  # Broker IP address
-broker_port = 1883  # Broker port
-target_topic_filter = "production_line/control/stop"  # Topic to listen for the stop command
-
-from production_line_producer import production_line
-
-# Create a new MQTT Client
-mqtt_client = mqtt.Client(client_id)
 
 # Attach the callback methods
 mqtt_client.on_message = on_message

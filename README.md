@@ -1,40 +1,47 @@
 # IoT Microservice Architecture for Production Line Monitoring
 
-This project implements an **IoT Microservices Software Architecture** designed to monitor a production line composed of multiple robotic arms. The architecture leverages microservices and containerization to provide a modular, scalable, and maintainable solution for real-time monitoring and management.
+This project implements an **IoT Microservices Software Architecture** designed to monitor a production line composed of
+multiple robotic arms. The architecture leverages microservices and containerization to provide a modular, scalable, and
+maintainable solution for real-time monitoring and management.
 
 ![IoT Architecture](images/iot_architecture.png)
 
-## System Overview
+## Project Structure
 
-The system consists of several key components, each responsible for specific functionalities to ensure seamless integration and operation:
+The system consists of several key components, each responsible for specific functionalities to ensure seamless
+integration and operation:
 
 - ### MQTT Local Broker
-  Positioned close to the production line, the **MQTT Local Broker** collects data from the robotic arms and forwards it to the **Cloud Broker**. This ensures low-latency communication and efficient data handling within the production environment.
+  Positioned close to the production line, the **MQTT Local Broker** collects data from the robotic arms and forwards it
+  to the **Cloud Broker**. This ensures low-latency communication and efficient data handling within the production
+  environment.
 - ### MQTT Cloud Broker
-  The **MQTT Cloud Broker** serves as a central hub for data aggregation, receiving messages from the Local Broker and distributing them to subscribed clients. This enables real-time monitoring and analytics from remote locations.
+  The **MQTT Cloud Broker** serves as a central hub for data aggregation, receiving messages from the Local Broker and
+  distributing them to subscribed clients. 
 - ### HTTP-API
   The **http-api** module, accessed via an HTTP API, manages key robotic arm metrics such as:
-- The weight supported by the end effector.
-- Power consumption for each robotic arm joint.
-  It also facilitates interaction with the **MQTT Data Fetcher** for seamless data synchronization.
+  The weight supported by the end effector and the power consumption for each robotic arm joint.
 - ### MQTT Data Fetcher
-  This microservice bridges MQTT communication with the **IoT Inventory API**. It subscribes to MQTT topics, processes incoming telemetry data, and interacts with the Inventory system. Additionally, it converts grip sensor values into weight measurements, enabling precise load tracking.
+  This microservice bridges MQTT communication with the **IoT Inventory API**. It subscribes to MQTT topics, processes
+  incoming telemetry data, and interacts with the HTTP-API System. Additionally, it converts grip sensor values into
+  weight measurements, enabling precise load tracking.
 - ### Web UI
   A user-friendly **Web Interface** provides real-time visualization of the production line. Key features include:
 - Displaying the power consumption of individual robotic arm joints.
 - Showing the weight currently supported by each robotic arm's end effector.
-- ### Fault Prevention Actuator (actuator)
-  This microservice analyzes data to proactively prevent faults or issues in robotic arms. When the health metrics of the robotic arms exceed a predefined threshold, the actuator automatically halts the production line and all robotic operations to ensure safety and prevent further damage.
-
+- Showing the faults detected by the Fault Prevention Actuator.
+- ### Fault Prevention Actuator 
+  This microservice analyzes data to proactively prevent faults or issues in robotic arms. When the consumption of any joint of any robot in the production line exceeds a certain threshold abnormally, it automatically stops the production line via an MQTT connection. 
 ---
 
 ![Microservice Architecture](images/microservices.png)
 
-Step-by-step guide:
+## Execution/Run Details
 
-## Create a Docker Network
+### Docker Network Setup
 
-Since we are going to deploy multiple containers, we need to create a dedicated network to allow communication between them.
+Since we are going to deploy multiple containers, we need to create a dedicated network to allow communication between
+them.
 **In this way containers can communicate with each other using the container name as the hostname.**
 
 Create a Docker network to allow the containers to communicate with each other:
@@ -43,15 +50,34 @@ Create a Docker network to allow the containers to communicate with each other:
   docker network create iot_production_line_network
 ```
 
-In order to connect a container to a network, you can use the following parameter `--network iot_iot_production_line_network` at the run time:
+In order to connect a container to a network, you can use the following parameter
+`--network iot_iot_production_line_network` at the run time:
 
 ```bash
   docker run --name=<container_name> --network iot_production_line_network <other_options> <image_name>
 ```
+### Starting the Docker Network
 
-## MQTT Local Broker Setup - Eclipse Mosquitto
+To start the entire Docker network, follow the steps below:
 
-This guide outlines how to set up and customize an MQTT broker using **Eclipse Mosquitto**. We use the official `eclipse-mosquitto` Docker image (version `2.0.12`) available on Docker Hub.
+1. **Navigate to the `docker-compose` directory:**
+
+   ```bash
+   cd docker-compose
+2. **Build the images for all the microservices**:
+Before running the Docker network, you need to build the images for all the microservices. Please refer to the README file of each microservice for instructions on how to build the images.  
+[MQTT Data Fetcher README](/data-fetcher/README.md) [MQTT Cloud Broker README](/mqtt-cloud-broker/README.md) [HTTP-API README](/http-api/README.md) [Web UI README](/web-ui/README.md) [Fault Prevention Actuator README](/fault-prevention-actuator/README.md)
+3. **Start the containers in detached mode**:
+Once the images are built, you can bring up all the containers using the following command:
+```bash
+  docker-compose up -d
+```
+This will start the entire network of containers defined in the docker-compose.yml file.
+
+### MQTT Local Broker Setup - Eclipse Mosquitto
+
+This guide outlines how to set up and customize an MQTT broker using **Eclipse Mosquitto**. We use the official
+`eclipse-mosquitto` Docker image (version `2.0.12`) available on Docker Hub.
 
 When setting up the broker, the following custom configurations are applied:
 
@@ -72,5 +98,11 @@ When setting up the broker, the following custom configurations are applied:
 2. **Run the Docker Container**
 
    ```bash
-
+    docker run --name=my-mosquitto-broker \
+    -p 1883:1883 \
+    -v ${PWD}/mqtt-local-broker/mosquitto_local.conf:/mosquitto/config/mosquitto.conf \
+    -v ${PWD}/docker-compose/data:/mosquitto/data \
+    -v ${PWD}/docker-compose/log:/mosquitto/log \
+    --restart always \
+    -d eclipse-mosquitto:2.0.12
    ```

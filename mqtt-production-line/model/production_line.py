@@ -1,16 +1,17 @@
 import paho.mqtt.client as mqtt
+
 from typing import Dict
-from model.robot_arm import RobotArm
+from .robot_arm import RobotArm
 import json
 import time
 
-BROKER_ADDRESS = "0.0.0.0"  # Address of the MQTT broker
-BROKER_PORT = 1883  # Port of the broker (using the standard port)
-MQTT_USERNAME = "iot-project-Melloni-Angelini-Morselli"  
-MQTT_PASSWORD = "password"  
-MQTT_BASIC_TOPIC = f"robot"  # Base topic
 
 class ProductionLine:
+    """
+    Represents a production line with multiple robot arms.
+    Manages the activation, deactivation, and monitoring of the robot arms.
+    """
+
     def __init__(self, line_id: str):
         self.line_id: str = line_id
         self.robot_arms: Dict[str, RobotArm] = {}
@@ -24,7 +25,10 @@ class ProductionLine:
         self.robot_arms[robot_arm.arm_id] = robot_arm
 
     def deactivate(self):
-        """Deactivates the production line and stops the robot arms"""
+        """
+        Deactivates the production line and stops the robot arms.
+        Also stops the monitoring and publishing process.
+        """
         self.active = False
         self.monitoring_active = False
         for robot_arm in self.robot_arms.values():
@@ -33,7 +37,7 @@ class ProductionLine:
         print(f"Production line {self.line_id} deactivated.")
 
     def activate(self):
-        """Activates the production line"""
+        """Activates the production line and starts the robot arms"""
         self.active = True
         self.monitoring_active = True  
         for robot_arm in self.robot_arms.values():
@@ -97,10 +101,13 @@ class ProductionLine:
             print("MQTT client disconnected.")
 
     def monitor_and_publish(self):
-        """Simula il monitoraggio e la pubblicazione dati MQTT"""
-        self.monitoring_active = True
-        while self.active and self.monitoring_active:
-            print(f"[DEBUG] Monitoring active: {self.monitoring_active}, Production line active: {self.active}")
+        """
+        Simulates monitoring sensors and publishes the data to the appropriate MQTT topics.
+        Runs in a loop while the production line is active.
+        """
+        self.monitoring_active = True  # Enable monitoring
+        while self.active == True and self.monitoring_active:
+
             for robot_arm in self.robot_arms.values():
                 payload_joint_consumptions = robot_arm.get_json_consumptions()
                 payload_grip = robot_arm.get_json_grip()
@@ -110,4 +117,10 @@ class ProductionLine:
 
                 self.publish_measurement(payload_joint_consumptions, topic_joints_consumption)
                 self.publish_measurement(payload_grip, topic_grip)
-        print("[DEBUG] Exiting monitoring loop.")
+            time.sleep(3)
+
+    def stop_monitor_and_publish(self):
+        """Stops the monitoring and publishing process"""
+        self.monitoring_active = False  # Disables the monitoring loop
+        print("Stopped monitoring and publishing.")
+

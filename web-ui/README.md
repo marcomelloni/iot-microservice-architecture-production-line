@@ -4,6 +4,17 @@
 
 The Web UI microservice provides a Flask-based web interface for visualizing telemetry data from robotic systems. It fetches telemetry data from an HTTP API and displays it using HTML templates.
 
+___
+## Docker Setup
+
+To run the microservice, you must create a Docker image using the provided Dockerfile. For the initial version, we are using image version 0.1.
+
+```bash
+  docker build -t web-ui:0.1 .
+```
+___
+
+
 ## Features
 
 - Fetches and displays joint consumption telemetry.

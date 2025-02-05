@@ -1,9 +1,10 @@
-from model.robot_arm_model import RobotArmModel
-from model.joints_model import JointsModel
+from ..model.robot_arm_model import RobotArmModel
+from ..model.joints_model import JointsModel
+
 
 class DataManager:
     """DataManager class to manage the robot arms of the production line and their data"""
-    
+
     def __init__(self):
         """Initialize DataManager with empty data structures"""
         self.robot_arm_list = []  # List to store all robot arms
@@ -73,7 +74,7 @@ class DataManager:
         """
         robot = self.get_robot_arm(arm_id)
         return list(robot.joints.values())  # Return all joints associated with this robot arm
-    
+
     # WEIGHT END EFFECTOR MANAGEMENT
 
     def set_end_effector_weight(self, arm_id: str, weight: float):
@@ -87,7 +88,7 @@ class DataManager:
         """
         if weight < 0:
             raise ValueError("Weight cannot be negative.")
-        
+
         robot = self.get_robot_arm(arm_id)
         robot.set_end_effector_weight(weight)
 
@@ -107,7 +108,7 @@ class DataManager:
         raise KeyError(f"No end effector weight set for robot arm with ID {arm_id}.")
 
     # FAULT MANAGEMENT
-    
+
     def set_robot_fault(self, arm_id: str, fault: str):
         """
         Sets a fault for a specific robot arm.
@@ -118,7 +119,7 @@ class DataManager:
         """
         # Store the fault in the dictionary
         self.fault_dictionary[arm_id] = fault
-         
+
     def get_robots_fault(self):
         """
         Retrieves all faults.

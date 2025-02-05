@@ -1,11 +1,17 @@
 import random
 import threading
-import time
+
 from datetime import datetime
 from typing import Dict
 from .sensor import Sensor
 
+
 class CurrentSensor(Sensor):
+    """
+    Represents a current sensor that measures the electrical current consumption of a joint.
+    Provides functionality to automatically update the measurement at regular intervals.
+    """
+
     def __init__(self, device_id: str, device_manufacturer: str):
         self.timestamp = datetime.now()
         self.value = random.randint(85, 95)
@@ -15,7 +21,7 @@ class CurrentSensor(Sensor):
         self._thread = None
 
     def update_consumption(self):
-        """Simulates an increase in consumption for the joint"""
+        """Simulates a very small increase in consumption for the joint"""
         self.value += random.uniform(0.000001, 0.000001)  # Increases consumption randomly
         self.timestamp = datetime.now()
 
@@ -45,7 +51,6 @@ class CurrentSensor(Sensor):
     def get_json_measurement(self) -> Dict:
         """Returns the sensor data in JSON format"""
         return super().get_json_measurement()
-
 
 
 """{'robot_arm_id': 'RA_001', 'joint_consumption_sensors': [

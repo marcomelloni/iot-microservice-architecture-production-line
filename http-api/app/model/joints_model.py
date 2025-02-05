@@ -1,20 +1,23 @@
 import json
 from datetime import datetime
 
+
 class JointsModel:
     """
-    JointsModel represents an individual joint in a robotic arm, including 
+    JointsModel represents an individual joint in a robotic arm, including
     its power consumption and a timestamp for data tracking.
     """
 
     def __init__(self, joint_id: str, consumption: float, timestamp: str):
         """
         Initializes a Joint instance with an identifier, power consumption, and timestamp.
-        
+
         :param joint_id: Unique identifier for the joint.
         :param consumption: Power consumption in watts.
         :param timestamp: Timestamp indicating the last measurement.
         """
+        self.timestamp = timestamp
+        self.consumption = consumption
         self.joint_id: str = joint_id
         self.set_consumption(consumption)
         self.set_timestamp(timestamp)
@@ -49,7 +52,3 @@ class JointsModel:
         :return: JSON representation of the JointsModel instance.
         """
         return json.dumps(self, default=lambda o: o.__dict__)
-
-        
-
-

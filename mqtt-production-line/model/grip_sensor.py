@@ -1,13 +1,19 @@
-import threading
-import time
 from datetime import datetime
 from typing import Dict
 from .sensor import Sensor
-import math  # To use the sine function
+import math
 
 
 class GripSensor(Sensor):
+    """
+    Represents a grip sensor that measures the grip force of a robot arm.
+    Simulates grip force using a sine wave.
+    """
+
     def __init__(self, device_id: str, device_manufacturer: str):
+        """
+        Initializes the grip sensor with a sine wave for simulating grip force.
+        """
         self.timestamp = datetime.now()
         self.value = 0.0
 
@@ -20,14 +26,20 @@ class GripSensor(Sensor):
         self._amplitude = (self._max_grip_force - self._min_grip_force) / 2  # Amplitude of the sine wave
 
     def start_auto_update(self):
-        """Starts automatic measurement updates if the line is active"""
+        """
+        Starts the automatic update of the grip force if the line is active.
+        """
         self.update_consumption()
 
     def update_consumption(self):
-        """Simulates an increase in consumption for the joint"""
+        """
+        Updates the grip force based on a sine wave.
+        """
         self.value = self._min_grip_force + self._amplitude * (math.sin(self._frequency) + 1)
         self.timestamp = datetime.now()
 
     def get_json_measurement(self) -> Dict:
-        """Returns the grip sensor data in JSON format"""
+        """
+        Returns the grip sensor data in JSON format.
+        """
         return super().get_json_measurement()

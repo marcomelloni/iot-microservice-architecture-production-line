@@ -1,58 +1,64 @@
+"""
+This script acts as an MQTT consumer for the production line control system.
+It listens for stop commands on a specific topic and deactivates the production line when a stop command is received.
+"""
+
 import paho.mqtt.client as mqtt
 import json
 import time
-from production_line_producer import deactivate_production_line  # Importa la production line dal producer
+from production_line_producer import \
+    deactivate_production_line  # Import the production line deactivation function from the producer
 
-# Configurazione variabili
+# Configuration variables
 client_id = "ProductionLine-Consumer"
-broker_ip = "127.0.0.1"  # Indirizzo IP del broker
-broker_port = 1883  # Porta del broker
-target_topic_filter = "production_line/control/stop"  # Topic per il comando di stop
+broker_ip = "127.0.0.1"  # Broker IP address
+broker_port = 1883  # Broker port
+target_topic_filter = "production_line/control/stop"  # Topic for the stop command
 
-# Crea un nuovo client MQTT
+# Create a new MQTT client
 mqtt_client = mqtt.Client(client_id)
 
-# Definisci il callback per quando il client riceve una risposta CONNACK dal server
-def on_connect(client, userdata, flags, rc):
-    """Chiamato quando il client si connette al broker."""
-    print(f"Connesso con codice di risultato {rc}")
-    # Iscrizione al topic dopo la connessione riuscita
-    mqtt_client.subscribe(target_topic_filter)
-    print(f"Iscritto a: {target_topic_filter}")
 
-# Definisci un callback per gestire i messaggi ricevuti
+def on_connect(client, userdata, flags, rc):
+    """
+    Called when the client connects to the broker.
+    Subscribes to the target topic after a successful connection.
+    """
+    print(f"Connected with result code {rc}")
+    mqtt_client.subscribe(target_topic_filter)
+    print(f"Subscribed to: {target_topic_filter}")
+
+
 def on_message(client, userdata, message):
-    """Chiamato quando viene ricevuto un messaggio."""
-    
-    # Verifica se il messaggio ricevuto corrisponde al filtro del topic
+    """
+    Called when a message is received.
+    Processes the received message and deactivates the production line if the payload is True.
+    """
     if mqtt.topic_matches_sub(target_topic_filter, message.topic):
         try:
-            # Decodifica il payload del messaggio come stringa
             message_payload = message.payload.decode("utf-8")
-            payload_data = json.loads(message_payload)  # Assumi che il payload sia in formato JSON
+            payload_data = json.loads(message_payload)
 
-            # Se payload_data è un booleano, usalo direttamente
-            if isinstance(payload_data, bool):  
-                if payload_data:  # Verifica se è True
-                    deactivate_production_line()
-                    print("Linea di produzione fermata.")
-            
-            print(f"Messaggio ricevuto sul topic {message.topic}: {payload_data}")
+            if isinstance(payload_data, bool) and payload_data:
+                deactivate_production_line()
+                print("Production line stopped.")
+
+            print(f"Message received on topic {message.topic}: {payload_data}")
 
         except json.JSONDecodeError:
-            print("Errore nella decodifica del payload JSON.")
+            print("Error decoding JSON payload.")
 
 
-# Collega i metodi di callback
+# Attach the callback methods
 mqtt_client.on_message = on_message
 mqtt_client.on_connect = on_connect
 
-# Connetti al broker MQTT
+# Connect to the MQTT broker
 mqtt_client.connect(broker_ip, broker_port)
 
-# Avvia il loop del client MQTT (questo bloccherà l'esecuzione e manterrà il programma in esecuzione)
+# Start the MQTT client loop (this will block execution and keep the program running)
 mqtt_client.loop_start()
 
-# Mantieni il consumer in esecuzione per ricevere i comandi
+# Keep the consumer running to listen for commands
 while True:
-    time.sleep(1)  # Mantieni attivo il ciclo per ascoltare i messaggi
+    time.sleep(1)  # Keep the loop active to listen for messages

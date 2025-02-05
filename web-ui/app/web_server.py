@@ -6,9 +6,15 @@ import threading
 
 
 class WebServer:
+    """
+    Represents a web server for the production line control system.
+    Manages the configuration, Flask app setup, and routes for telemetry data.
+    """
 
-    def __init__(self, config_file:str):
-
+    def __init__(self, config_file: str):
+        """
+        Initializes the web server with configuration settings and sets up the Flask app.
+        """
         # Server Thread
         self.server_thread = None
 
@@ -37,17 +43,16 @@ class WebServer:
         self.app = Flask(__name__, template_folder=template_dir)
 
         # Add URL rules to the Flask app mapping the URL to the function
-        self.app.add_url_rule('/robot/<string:robot_id>/telemetry/joints_consumption', 'joint_consumption', self.joint_consumption)
+        self.app.add_url_rule('/robot/<string:robot_id>/telemetry/joints_consumption', 'joint_consumption',
+                              self.joint_consumption)
         self.app.add_url_rule('/robot/<string:robot_id>/telemetry/weight_ee', 'weight_ee', self.weight_ee)
         self.app.add_url_rule('/robots', 'robots', self.robots)
         self.app.add_url_rule('/faults', 'faults', self.faults)
-        
 
     def read_configuration_file(self):
-        """ Read Configuration File for the Web Server
-         :return:
         """
-
+        Reads the configuration file for the web server.
+        """
         # Get the main communication directory
         main_app_path = ""
 
@@ -58,20 +63,24 @@ class WebServer:
             self.configuration_dict = yaml.safe_load(file)
 
         print("Read Configuration from file ({}): {}".format(self.config_file, self.configuration_dict))
-        
+
     def joint_consumption(self, robot_id):
-        """ Get telemetry data for a specific device and render the telemetry.html template"""
+        """
+        Gets telemetry data for a specific device and renders the telemetry.html template.
+        """
         joint_consumption_values = self.http_get_production_line_joint_consumption_data(robot_id)
         print(joint_consumption_values)
 
-        # Prepara una lista di consumi con joint_id e valore di consumo
-        joints = [{"joint_id": joint["joint_id"], "consumption": joint["consumption"]} for joint in joint_consumption_values]
+        # Prepares a list of consumptions with joint_id and consumption value
+        joints = [{"joint_id": joint["joint_id"], "consumption": joint["consumption"]} for joint in
+                  joint_consumption_values]
 
         return render_template('joint_consumption.html', joints=joints, robot_id=robot_id)
 
     def http_get_production_line_joint_consumption_data(self, robot_id):
-        """ Get all locations from the remote server over HTTP"""
-
+        """
+        Gets all locations from the remote server over HTTP.
+        """
         # Get the base URL from the configuration
         base_http_url = self.configuration_dict['web']['api_base_url']
         target_url = f'{base_http_url}/robot/{robot_id}/telemetry/joints_consumption'
@@ -83,13 +92,16 @@ class WebServer:
         return response_string.json()
 
     def weight_ee(self, robot_id):
-        """ Get the weight supported by the end effector of a robot"""
+        """
+        Gets the weight supported by the end effector of a robot and renders the weight_ee.html template.
+        """
         weight_value = self.http_get_production_line_weight_ee_data(robot_id)
         return render_template('weight_ee.html', weight_value=weight_value, robot_id=robot_id)
 
     def http_get_production_line_weight_ee_data(self, robot_id):
-        """ Get all devices for the target location_id from the remote server over HTTP"""
-
+        """
+        Gets the weight supported by the end effector from the remote server over HTTP.
+        """
         # Get the base URL from the configuration
         base_http_url = self.configuration_dict['web']['api_base_url']
         target_url = f'{base_http_url}/robot/{robot_id}/telemetry/weight_ee'
@@ -101,13 +113,16 @@ class WebServer:
         return response_string.json()
 
     def robots(self):
-        """ Get all robots"""
+        """
+        Gets all robots and renders the robots.html template.
+        """
         robots = self.http_get_robots_data()
         return render_template('robots.html', value=robots)
 
     def http_get_robots_data(self):
-        """ Get all devices for the target location_id from the remote server over HTTP"""
-
+        """
+        Gets all robots from the remote server over HTTP.
+        """
         # Get the base URL from the configuration
         base_http_url = self.configuration_dict['web']['api_base_url']
         target_url = f'{base_http_url}/robots'
@@ -119,13 +134,16 @@ class WebServer:
         return response_string.json()
 
     def faults(self):
-        """ Get all Faults"""
+        """
+        Gets all faults and renders the faults.html template.
+        """
         faults = self.http_get_faults_data()
         return render_template('faults.html', value=faults)
-    
-    def http_get_faults_data(self):
-        """ Get all devices for the target location_id from the remote server over HTTP"""
 
+    def http_get_faults_data(self):
+        """
+        Gets all faults from the remote server over HTTP.
+        """
         # Get the base URL from the configuration
         base_http_url = self.configuration_dict['web']['api_base_url']
         target_url = f'{base_http_url}/robot/faults'
@@ -137,21 +155,22 @@ class WebServer:
         return response_string.json()
 
     def run_server(self):
-        """ Run the Flask Web Server"""
+        """
+        Runs the Flask web server.
+        """
         self.app.run(host=self.configuration_dict['web']['host'], port=self.configuration_dict['web']['port'])
 
     def start(self):
+        """
+        Starts the web server in a separate thread.
+        """
         self.server_thread = threading.Thread(target=self.run_server)
         self.server_thread.start()
 
     def stop(self):
-        """ Stop the REST API Server (Flask Method)
-        In this code, request.environ.get('werkzeug.server.shutdown')
-        retrieves the shutdown function from the environment.
-        If the function is not found, it raises a RuntimeError,
-        indicating that the server is not running with Werkzeug.
-        If the function is found, it is called to shut down the server."""
-
+        """
+        Stops the REST API server (Flask method).
+        """
         # Shutdown the server
         func = request.environ.get('werkzeug.server.shutdown')
         if func is None:

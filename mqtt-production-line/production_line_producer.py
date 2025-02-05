@@ -1,77 +1,95 @@
+"""
+This script simulates a production line with multiple robot arms.
+It manages the activation, deactivation, and monitoring of the production line and publishes data to an MQTT broker.
+"""
+
 import time
 import paho.mqtt.client as mqtt
 from model.robot_arm import RobotArm
 from model.production_line import ProductionLine
 import threading
 
-# Crea i robot arms
+# Create the robot arms
 robot_arm_1 = RobotArm("RA_001", "XYZ Robotics", 3, 1)
 robot_arm_2 = RobotArm("RA_002", "XYZ Robotics", 3, 1)
 robot_arm_3 = RobotArm("RA_003", "XYZ Robotics", 3, 1)
 
-# Crea la linea di produzione
+# Create the production line
 production_line = ProductionLine("PL_001")
 
-# Aggiungi i robot arms alla linea di produzione
+# Add the robot arms to the production line
 production_line.add_robot_arm(robot_arm_1)
 production_line.add_robot_arm(robot_arm_2)
 production_line.add_robot_arm(robot_arm_3)
 
-# Flag per il monitoraggio
+# Flag for monitoring
 monitoring_active = False
 
-# Funzione di attivazione della linea di produzione
+
 def activate_production_line():
-    """Funzione per attivare la linea di produzione."""
+    """
+    Activates the production line and starts the monitoring thread.
+    """
     global monitoring_active
-    production_line.activate()  # Riattiva la linea di produzione
-    print("Linea di produzione attivata.")
+    production_line.activate()  # Reactivate the production line
+    print("Production line activated.")
     time.sleep(5)
-    
-    monitoring_active = True  # Abilita il monitoraggio
-    start_monitoring_thread()  # Avvia il thread di monitoraggio
+
+    monitoring_active = True  # Enable monitoring
+    start_monitoring_thread()  # Start the monitoring thread
+
 
 def deactivate_production_line():
-    """Funzione per disattivare la linea di produzione."""
+    """
+    Deactivates the production line and stops the monitoring thread.
+    """
     global monitoring_active
-    production_line.deactivate()  # Disattiva la linea di produzione
-    monitoring_active = False  # Ferma il monitoraggio
-    production_line.stop_monitor_and_publish()  # Ferma la pubblicazione dei dati
-    print("Linea di produzione fermata.")
+    production_line.deactivate()  # Deactivate the production line
+    monitoring_active = False  # Stop monitoring
+    production_line.stop_monitor_and_publish()  # Stop publishing data
+    print("Production line stopped.")
 
-# Funzione per avviare il client MQTT e la pubblicazione dei dati
+
 def start_mqtt_client():
-    """Funzione per avviare il client MQTT e la pubblicazione dei dati."""
-    production_line.start_mqtt_client()  # Avvia il client MQTT
-    # Monitoraggio della produzione e pubblicazione dei dati
-    production_line.monitor_and_publish()  # Avvia la pubblicazione dei dati
+    """
+    Starts the MQTT client and data publishing.
+    """
+    production_line.start_mqtt_client()  # Start the MQTT client
+    # Monitor production and publish data
+    production_line.monitor_and_publish()  # Start publishing data
 
-# Funzione principale per gestire la simulazione
+
 def start_production_simulation():
-    """Funzione principale per gestire la simulazione della produzione."""
-    # Attiviamo la linea di produzione
+    """
+    Main function to manage the production simulation.
+    """
+    # Activate the production line
     activate_production_line()
 
-    # Avviamo il client MQTT e iniziamo la pubblicazione dei dati
+    # Start the MQTT client and begin publishing data
     start_mqtt_client()
 
-# Funzione per eseguire il monitoraggio in un thread separato
-def start_monitoring_thread():
-    """Avvia il thread per il monitoraggio della produzione."""
-    def monitor():
-        while monitoring_active:  # Esegui finché il monitoraggio è attivo
-            production_line.monitor_and_publish()  # Pubblica i dati di monitoraggio
-            time.sleep(3)  # Aggiungi un ritardo per evitare un ciclo troppo veloce
 
-    # Avvia il thread per il monitoraggio
+def start_monitoring_thread():
+    """
+    Starts the monitoring thread for the production line.
+    """
+
+    def monitor():
+        while monitoring_active:  # Run while monitoring is active
+            production_line.monitor_and_publish()  # Publish monitoring data
+            time.sleep(3)  # Add a delay to avoid a too-fast loop
+
+    # Start the monitoring thread
     monitoring_thread = threading.Thread(target=monitor)
-    monitoring_thread.daemon = True  # Il thread termina quando il programma principale termina
+    monitoring_thread.daemon = True  # The thread terminates when the main program ends
     monitoring_thread.start()
 
-# Avvia la simulazione della produzione
+
+# Start the production simulation
 if __name__ == "__main__":
     start_production_simulation()
 
-    # Fai partire un ciclo infinito per simulare la continua esecuzione
+    # Run an infinite loop to simulate continuous execution
     while True:
-        time.sleep(1)  # Mantieni il thread principale attivo
+        time.sleep(1)  # Keep the main thread active

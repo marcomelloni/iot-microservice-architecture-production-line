@@ -1,10 +1,11 @@
 from typing import Dict
-from model.joints_model import JointsModel
+from .joints_model import JointsModel
 import json
+
 
 class RobotArmModel:
     """
-    RobotArmModel represents a robotic arm with configurable properties, 
+    RobotArmModel represents a robotic arm with configurable properties,
     including manufacturer details, joint configurations, and payload capacity.
     """
 
@@ -22,10 +23,10 @@ class RobotArmModel:
 
     def add_joint(self, joint_id: str, joint_model: JointsModel):
         """
-        Adds or updates a joint configuration.
+        Adds or updates a joint configuration in the robot arm.
 
         :param joint_id: Name of the joint (e.g., 'shoulder', 'elbow').
-        :param joint_consumption: Joint-specific data, such as position, torque, or speed.
+        :param joint_model: Joint-specific data, such as position, torque, or speed.
         """
         self.joints[joint_id] = joint_model
 
@@ -46,9 +47,13 @@ class RobotArmModel:
         Returns the number of joints present in the robot arm.
 
         :return: The number of joints.
-        """        
+        """
         return len(self.joints)
 
     def to_json(self):
-        """ Serialize the Robot Arm to a JSON string """
+        """
+        Serializes the RobotArmModel object to a JSON string.
+
+        :return: JSON representation of the RobotArmModel instance.
+        """
         return json.dumps(self, default=lambda o: o.__dict__)

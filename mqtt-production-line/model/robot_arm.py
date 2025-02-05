@@ -4,11 +4,20 @@ from .grip_sensor import GripSensor
 
 
 class RobotArm:
+    """
+    Represents a robot arm with multiple joints and grip sensors.
+    Manages the activation, deactivation, and monitoring of the joints and grip sensors.
+    """
+
     def __init__(self, arm_id: str, manufacturer: str, n_joints: int, n_grips: int):
+        """
+        Initializes the robot arm with an ID, manufacturer, number of joints, and number of grip sensors.
+        """
         self.arm_id: str = arm_id
         self.manufacturer: str = manufacturer
         self.joints: List[Joint] = [Joint(f"joint_{i}") for i in range(n_joints)]  # Joints of the robot arm
-        self.grips: List[GripSensor] = [GripSensor(f"grip_{i}", "ABB") for i in range(n_grips)]  # Grip sensors of the robot arm
+        self.grips: List[GripSensor] = [GripSensor(f"grip_{i}", "ABB") for i in
+                                        range(n_grips)]  # Grip sensors of the robot arm
         self.idle = True
 
     def start(self):

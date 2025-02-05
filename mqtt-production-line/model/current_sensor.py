@@ -8,10 +8,9 @@ from .sensor import Sensor
 class CurrentSensor(Sensor):
     def __init__(self, device_id: str, device_manufacturer: str):
         self.timestamp = datetime.now()
-        self.value = 95
+        self.value = random.randint(85, 95)
         super().__init__(device_id, device_manufacturer, self.value, "A", self.timestamp)
         self.running = False
-        
         # Thread for auto-update
         self._thread = None
 

@@ -18,15 +18,7 @@ The **MQTT Data Fetcher** microservice serves as an integration layer between an
 
 - **Updating End Effector Load**:  
   Sends POST requests to update the weight supported by the robot's end effector.
-___
-## Docker Setup
 
-To run the microservice, you must create a Docker image using the provided Dockerfile. For the initial version, we are using image version 0.1.
-
-```bash
-  docker build -t data-fetcher:0.1 .
-```
-___
 ## Methods and Code Structure
 
 To achieve the functionalities mentioned above, we have structured the service with an initialization code and two main methods.
@@ -103,18 +95,18 @@ If the message type is "joints_consumption", a POST request is sent to the API t
 If the message type is "grip", the service calculates the weight carried by the end effector and sends a POST request to update this information:
 
 ```python
-    elif message == "grip":
-        target_url = f"{api_url}/{robot_id}/telemetry/weight_ee"
+elif message == "grip":
+      target_url = f"{api_url}/{robot_id}/telemetry/weight_ee"
 
-          ... calculations ...
+      ... calculations ...
 
-        # Creazione del payload desiderato
-        payload_desired = {
-            ...
-        }
-        response = requests.post(target_url, json=payload_desired)
-        print(f"POST request to {target_url} with payload {weight} returned {response.status_code}")
-        time.sleep(1)
+      # Creazione del payload desiderato
+      payload_desired = {
+          ...
+      }
+      response = requests.post(target_url, json=payload_desired)
+      print(f"POST request to {target_url} with payload {weight} returned {response.status_code}")
+      time.sleep(1)
 ```
 
 ##### Unknown Messages
@@ -122,6 +114,44 @@ If the message type is "grip", the service calculates the weight carried by the 
 If the message type is unknown, an error is logged:
 
 ```python
-            else:
-                print(f"Unknown message type: {message}")
+else:
+  print(f"Unknown message type: {message}")
+```
+
+## Running the Service
+
+### Locally
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Run the server:
+   ```bash
+   python data_fetcher.py
+   ```
+
+### Dockerized
+
+1. Build the Docker image:
+   ```bash
+   docker build -t data-fetcher:0.1 .
+   ```
+
+## Deployment in Docker Compose
+
+To integrate this microservice into a Docker Compose setup, ensure the following entry exists in `docker-compose.yml`:
+
+```yaml
+mqtt_data_fetcher:
+  container_name: mqtt_data_fetcher
+  image: data-fetcher:0.1
+  volumes:
+    - ./target_fetcher_conf.yaml:/app/fetcher_conf.yaml
+  restart: always
+  depends_on:
+    - cloud-mosquitto-broker
+    - http-api
+  networks:
+    - iot_production_line_network
 ```

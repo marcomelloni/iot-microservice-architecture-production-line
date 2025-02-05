@@ -2,21 +2,9 @@
 
 ## Introduction
 
-This service uses Flask to create a RESTful application. The application is structured such that every API request has
+The HTTP-API microservice uses Flask to create a RESTful application. The application is structured such that every API request has
 its dedicated resource. Furthermore, each resource has its HTTP methods declared, and each GET method has its Data
 Transfer Object (DTO) defined to ensure the correct response.
-___
-
-## Docker Setup
-
-To run the microservice, you must create a Docker image using the provided Dockerfile. For the initial version, we are
-using image version 0.1.
-
-```bash
-  docker build -t http-api:0.1 .
-```
-
-___
 
 ## Server Application:
 
@@ -38,7 +26,7 @@ At the beginning, the program initializes one instance of the Flask application 
 API application:
 
 ```python
-    app = Flask(__name__)
+app = Flask(__name__)
 api = Api(app)
 ```
 
@@ -47,11 +35,11 @@ api = Api(app)
 The API resources contains the models used to provide the clients with API methods, in this project they are defined
 by :
 
-- ProductionLineResource: Handles operations related to a production lines, such as declaring the basic number of
+- **ProductionLineResource**: Handles operations related to a production lines, such as declaring the basic number of
   robots.
-- RobotJointsConsumptionResource: Handles the consumption of joints for a specific robot
-- RobotWeightEEResource: Handles the end effector weight of a specific robot
-- FaultActuatorResource: : Handles the notifications produced by the fault prevention actuator
+- **RobotJointsConsumptionResource**: Handles the consumption of joints for a specific robot
+- **RobotWeightEEResource**: Handles the end effector weight of a specific robot
+- **FaultActuatorResource**: : Handles the notifications produced by the fault prevention actuator
 
 Every resource is registered in the API resources using the Flask-RESTful method "api.add_resource()". Also, for each
 resource the following are specified:
@@ -65,12 +53,12 @@ resource the following are specified:
 Here, there is an example :
 
 ```python
-    api.add_resource(RobotJointsConsumptionResource,  # resource class
-                     configuration_dict['rest']['api_prefix'] + '/robot/<string:robot_id>/telemetry/joints_consumption',
-                     # endpoint url
-                     resource_class_kwargs={'data_manager': data_manager},  # resource's constructor arguments
-                     endpoint="robot_joints_consumption",  # A name for the endpoint.
-                     methods=['GET', 'POST'])  # HTTP methods
+api.add_resource(RobotJointsConsumptionResource,# resource class
+    configuration_dict['rest']['api_prefix'] + '/robot/<string:robot_id>/telemetryjoints_consumption',
+                # endpoint url
+    resource_class_kwargs={'data_manager': data_manager},  # resource's constructor arguments
+    endpoint="robot_joints_consumption",  # A name for the endpoint.
+    methods=['GET', 'POST'])  # HTTP methods
 ```
 
 #### Models:
@@ -78,10 +66,10 @@ Here, there is an example :
 Models contain the data structures for locations and devices. They are used by the resources to respond to POST requests
 with the correct data format. In particular, we have two models in this project:
 
-- joint_model.py: Contains the Joint class that represents an individual joint in a robotic arm, including
+- **joint_model**.py: Contains the Joint class that represents an individual joint in a robotic arm, including
   its power consumption and a timestamp for data tracking
 
-- robot_arm_model.py: Contains the RobotArmModel class, which represents a robotic arm with configurable properties,
+- **robot_arm_model**.py: Contains the RobotArmModel class, which represents a robotic arm with configurable properties,
   such as manufacturer details, joint information, and payload capacity.
   Here, there is an example :
 
@@ -193,8 +181,47 @@ class DataManager:
         ...
 ```
 
-#### Postman:
+#### Postman Collection:
 
-Postman is a very popular tool in the world of API development that simplifies every stage of the API lifecycle, from
-design and testing to documentation and collaboration. So we have added it to our project to simplify the functionality
-testing process
+In the Postman folder, you will find the complete Postman collection containing the configurations for all the available APIs in our application.
+
+## Running the Service
+
+### Locally
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Run the server:
+   ```bash
+   python api_server.py
+   ```
+
+### Dockerized
+
+1. Build the Docker image:
+   ```bash
+   docker build -t http-api:0.1 .
+   ```
+2. Run the container:
+   ```bash
+   docker run -p 7070:7070 -v $(pwd)/test_conf.yaml:/app/conf.yaml http-api:0.1
+   ```
+
+## Deployment in Docker Compose
+
+To integrate this microservice into a Docker Compose setup, ensure the following entry exists in `docker-compose.yml`:
+
+```yaml
+http-api:
+  container_name: http-api
+  image: http-api:0.1
+  ports:
+    - "7070:7070"
+  volumes:
+    - ./target_api_conf.yaml:/app/conf.yaml
+  restart: always
+  networks:
+    - iot_production_line_network
+```

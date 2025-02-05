@@ -1,24 +1,14 @@
 # Web UI Microservice
 
-## Overview
+## Introduction
 
-The Web UI microservice provides a Flask-based web interface for visualizing telemetry data from robotic systems. It fetches telemetry data from an HTTP API and displays it using HTML templates.
-
-___
-## Docker Setup
-
-To run the microservice, you must create a Docker image using the provided Dockerfile. For the initial version, we are using image version 0.1.
-
-```bash
-  docker build -t web-ui:0.1 .
-```
-___
-
+The Web UI microservice provides a Flask-based web interface for visualizing telemetry data from robotic systems and monitor the Fault logs of the actuator. It fetches telemetry data from an HTTP API and displays it using HTML templates.
 
 ## Features
 
 - Fetches and displays joint consumption telemetry.
 - Fetches and displays weight capacity telemetry.
+- Fetches and displays fault messages.
 - Configurable via YAML configuration files.
 - Runs as a Docker container.
 - Supports deployment with Docker Compose.
@@ -62,6 +52,14 @@ web:
   api_base_url: "http://http-api:7070/api/v1/productionline"
 ```
 
+## API Endpoints
+
+| Endpoint                                         | Description                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------ |
+| `/robot/<robot_id>/telemetry/joints_consumption` | Fetches and displays joint consumption data                  |
+| `/robot/<robot_id>/telemetry/weight_ee`          | Fetches and displays weight capacity data                    |
+| `/robot/<robot_id>/faults`                       | Fetches and displays logs from the Fault Prevention Actuator |
+
 ## Running the Service
 
 ### Locally
@@ -85,13 +83,6 @@ web:
    ```bash
    docker run -p 7071:7071 -v $(pwd)/target_web_conf.yaml:/app/web_conf.yaml web-ui:0.1
    ```
-
-## API Endpoints
-
-| Endpoint                                         | Description                                 |
-| ------------------------------------------------ | ------------------------------------------- |
-| `/robot/<robot_id>/telemetry/joints_consumption` | Fetches and displays joint consumption data |
-| `/robot/<robot_id>/telemetry/weight_ee`          | Fetches and displays weight capacity data   |
 
 ## Deployment in Docker Compose
 

@@ -15,16 +15,6 @@ notifying every problem discovered at the user through the HTTP-API. Below are t
 - **Faults Message Storage**:  
   Sends POST requests to the HTTP-API to save the faults detected in the production line.
 
-___
-## Docker Setup
-
-To run the microservice, you must create a Docker image using the provided Dockerfile. For the initial version, we are using image version 0.1.
-
-```bash
-  docker build -t mqtt-fault-actuator:0.1 .
-```
-___
-
 ## Methods and Code Structure
 
 To achieve the functionalities mentioned above, we have structured the service with an initialization code and different
@@ -140,3 +130,39 @@ Service (QoS) is set to `QOS2`.
                         return
 ```
 
+## Running the Service
+
+### Locally
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Run the server:
+   ```bash
+   python fault_prevention_actuator.py
+   ```
+
+### Dockerized
+
+1. Build the Docker image:
+   ```bash
+   docker build -t mqtt-fault-actuator:0.1 .
+   ```
+
+## Deployment in Docker Compose
+
+To integrate this microservice into a Docker Compose setup, ensure the following entry exists in `docker-compose.yml`:
+
+```yaml
+mqtt-fault-actuator:
+  container_name: mqtt-fault-actuator
+  image: mqtt-fault-actuator:0.1
+  volumes:
+    - ./target_actuator_conf.yaml:/app/actuator_conf.yaml
+  restart: always
+  depends_on:
+    - cloud-mosquitto-broker
+  networks:
+    - iot_production_line_network
+```

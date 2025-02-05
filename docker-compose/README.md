@@ -4,6 +4,8 @@ This project uses Docker Compose to orchestrate the services needed for our IoT 
 
 ## Services
 
+![Docker Services](images/services.png)
+
 ### 1. **cloud-mosquitto-broker**
 
 - **Docker Image**: `eclipse-mosquitto:2.0.12`

@@ -26,7 +26,7 @@ the local broker to send and receive messages from the remote broker.
 - **When the local broker is unreachable from the cloud**, messages are temporarily stored in the local broker and sent
   when the connection to the cloud is restored.
 
-## mosquitto_local.conf: Local Broker Configuration
+# mosquitto_local.conf: Local Broker Configuration
 
 This configuration file sets up Mosquitto to run a local MQTT broker, while also establishing a bridge between the local
 broker and a remote cloud broker for synchronization. Below is a detailed explanation of the various settings used in
@@ -36,14 +36,14 @@ the file.
 
 ⁠ listener 1883 ⁠
 
-*Description*: This line configures the local Mosquitto broker to listen on port 1883. This is the default port for MQTT
+_Description_: This line configures the local Mosquitto broker to listen on port 1883. This is the default port for MQTT
 communication, and it allows local devices to connect to the broker.
 
 ### 2. Allow Anonymous Connections
 
 ⁠ allow_anonymous true ⁠
 
-*Description*: This setting allows anonymous connections to the local broker. With this configuration, clients do not
+_Description_: This setting allows anonymous connections to the local broker. With this configuration, clients do not
 need to provide authentication credentials (username and password) to connect to the broker. This can be useful in local
 networks where devices are trusted, but it is not recommended for production environments where security is important.
 
@@ -54,57 +54,57 @@ broker to send and receive messages to and from the cloud.
 
 #### ⁠ connection cloud-mosquitto-broker ⁠
 
-*Description*: This parameter defines the name of the bridge connection. ⁠ cloud-mosquitto-broker ⁠ is a reference name
+_Description_: This parameter defines the name of the bridge connection. ⁠ cloud-mosquitto-broker ⁠ is a reference name
 that can be used later to configure the connection.
 
 #### ⁠ address 172.18.0.2:1883 ⁠
 
-*Description*: This specifies the address and port of the cloud broker. In this case, ⁠ 172.18.0.2 ⁠ is the IP address
+_Description_: This specifies the address and port of the cloud broker. In this case, ⁠ 172.18.0.2 ⁠ is the IP address
 of the cloud broker (it could be a Docker container or a remote server), and ⁠ 1883 ⁠ is the default MQTT port. The
 local broker will attempt to connect to this IP address to synchronize messages.
 
 #### ⁠ topic # in 0 ⁠
 
-*Description*: This line defines the topics that the local broker subscribes to from the cloud broker. ⁠ # ⁠ is a
+_Description_: This line defines the topics that the local broker subscribes to from the cloud broker. ⁠ # ⁠ is a
 wildcard that indicates all topics are included. ⁠ in 0 ⁠ specifies that messages received from the cloud broker on
 these topics will be processed with a Quality of Service (QoS) level of 0, meaning the message is sent at most once
 without any delivery guarantees.
 
 #### ⁠ topic # out 0 ⁠
 
-*Description*: This line defines the topics to which the local broker will publish messages to the cloud broker. Again,
+_Description_: This line defines the topics to which the local broker will publish messages to the cloud broker. Again,
 ⁠ # ⁠ indicates all topics. ⁠ out 0 ⁠ specifies that messages sent from the local broker will be published with QoS 0.
 
 #### ⁠ bridge_attempt_unsubscribe false ⁠
 
-*Description*: This parameter specifies whether the local broker should attempt to unsubscribe from topics if the bridge
+_Description_: This parameter specifies whether the local broker should attempt to unsubscribe from topics if the bridge
 connection is lost. Setting it to ⁠ false ⁠ means that the broker will not attempt to unsubscribe if it fails to do so.
 
 #### ⁠ try_private false ⁠
 
-*Description*: This setting specifies whether the bridge should use private topics. Setting it to ⁠ false ⁠ means that
+_Description_: This setting specifies whether the bridge should use private topics. Setting it to ⁠ false ⁠ means that
 the bridge will not use private sessions, and all sessions will be new for each connection to the cloud broker.
 
 #### ⁠ start_type automatic ⁠
 
-*Description*: This option ensures that the bridge starts automatically when the local Mosquitto broker starts. This
+_Description_: This option ensures that the bridge starts automatically when the local Mosquitto broker starts. This
 means the bridge will not require manual intervention to establish a connection to the cloud broker.
 
 #### ⁠ cleansession true ⁠
 
-*Description*: This sets the session to be clean, meaning that all session data (such as subscriptions) is discarded
+_Description_: This sets the session to be clean, meaning that all session data (such as subscriptions) is discarded
 when the connection is lost or closed. A new session will be created each time the bridge connects.
 
 ### 4. Logging Configuration
 
 #### ⁠ log_dest stdout ⁠
 
-*Description*: This line configures the broker to output logs to the standard output (stdout). It helps with
+_Description_: This line configures the broker to output logs to the standard output (stdout). It helps with
 troubleshooting by allowing logs to be visible in the terminal or console where the broker is running.
 
 #### ⁠ log_type all ⁠
 
-*Description*: This specifies that all types of logs should be captured. This includes connection logs, message logs,
+_Description_: This specifies that all types of logs should be captured. This includes connection logs, message logs,
 error logs, and more. It helps track all broker activity for debugging and monitoring.
 
 #### How the Bridge Works

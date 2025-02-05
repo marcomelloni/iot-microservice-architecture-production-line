@@ -48,7 +48,6 @@ def on_message(client, userdata, message):
         except json.JSONDecodeError:
             print("Error decoding JSON payload.")
 
-
 # Attach the callback methods
 mqtt_client.on_message = on_message
 mqtt_client.on_connect = on_connect
@@ -62,3 +61,4 @@ mqtt_client.loop_start()
 # Keep the consumer running to listen for commands
 while True:
     time.sleep(1)  # Keep the loop active to listen for messages
+

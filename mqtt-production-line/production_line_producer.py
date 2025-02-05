@@ -1,3 +1,4 @@
+
 """
 This script simulates a production line with multiple robot arms.
 It manages the activation, deactivation, and monitoring of the production line and publishes data to an MQTT broker.
@@ -5,14 +6,12 @@ It manages the activation, deactivation, and monitoring of the production line a
 
 import time
 import paho.mqtt.client as mqtt
-from model.robot_arm import RobotArm
-from model.production_line import ProductionLine
-import threading
 
 # Create the robot arms
 robot_arm_1 = RobotArm("RA_001", "XYZ Robotics", 3, 1)
 robot_arm_2 = RobotArm("RA_002", "XYZ Robotics", 3, 1)
 robot_arm_3 = RobotArm("RA_003", "XYZ Robotics", 3, 1)
+
 
 # Create the production line
 production_line = ProductionLine("PL_001")
@@ -87,9 +86,8 @@ def start_monitoring_thread():
 
 
 # Start the production simulation
-if __name__ == "__main__":
-    start_production_simulation()
 
-    # Run an infinite loop to simulate continuous execution
-    while True:
-        time.sleep(1)  # Keep the main thread active
+if __name__ == "__main__":
+    production_line.activate()
+    production_line.start_mqtt_client()
+    production_line.monitor_and_publish()

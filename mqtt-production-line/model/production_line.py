@@ -14,10 +14,11 @@ class ProductionLine:
 
     def __init__(self, line_id: str):
         self.line_id: str = line_id
-        self.robot_arms: Dict[str, RobotArm] = {}  # Dictionary of robot arms
-        self.active: bool = True  # Active state of the production line
-        self.mqtt_client: mqtt.Client = None  # MQTT client
-        self.mqtt_connected: bool = False  # MQTT connection status
+        self.robot_arms: Dict[str, RobotArm] = {}
+        self.active: bool = True
+        self.mqtt_client: mqtt.Client = None
+        self.mqtt_connected: bool = False
+        self.stopped: bool = False  # Flag to track if STOP was received
 
     def add_robot_arm(self, robot_arm: RobotArm):
         """Adds a robot arm to the production line"""
@@ -29,15 +30,16 @@ class ProductionLine:
         Also stops the monitoring and publishing process.
         """
         self.active = False
+        self.monitoring_active = False
         for robot_arm in self.robot_arms.values():
             robot_arm.stop()
             robot_arm.reset()
-        self.stop_monitor_and_publish()
         print(f"Production line {self.line_id} deactivated.")
 
     def activate(self):
         """Activates the production line and starts the robot arms"""
         self.active = True
+        self.monitoring_active = True  
         for robot_arm in self.robot_arms.values():
             robot_arm.start()
         print(f"Production line {self.line_id} activated.")
@@ -58,13 +60,38 @@ class ProductionLine:
         else:
             print("Error: not connected to the MQTT broker.")
 
+    def on_message(self, client, userdata, msg):
+        """Handles incoming MQTT messages"""
+        payload = msg.payload.decode("utf-8")
+        print(f"[DEBUG] Received message on topic {msg.topic}: {payload}")
+
+        if payload == "STOP":
+            if self.stopped:  # Skip if already stopped
+                print("[DEBUG] STOP command ignored (already stopped)")
+                return
+            self.deactivate()  # Stop the production line
+            self.stop_mqtt_client()  # Stop the MQTT client
+            self.stopped = True  # Mark as stopped
+
+        elif payload == "START":
+            if not self.stopped:  # Skip if already running
+                print("[DEBUG] START command ignored (already running)")
+                return
+            self.start_mqtt_client()  # Start the MQTT client
+            self.activate()  # Restart the production line
+            self.stopped = False  # Reset stopped flag
+
     def start_mqtt_client(self):
-        """Initializes and starts the MQTT client"""
+        """Inizializza e avvia il client MQTT con sottoscrizione ai comandi"""
         self.mqtt_client = mqtt.Client(f"production-line-{self.line_id}")
         self.mqtt_client.on_connect = self.on_connect
+        self.mqtt_client.on_message = self.on_message  # Aggiungi gestione messaggi
         self.mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
         self.mqtt_client.connect(BROKER_ADDRESS, BROKER_PORT)
-        self.mqtt_client.loop_start()  # Starts the loop for the MQTT connection
+        
+        self.mqtt_client.subscribe(f"{MQTT_BASIC_TOPIC}/command")  # Ascolta i comandi
+        self.mqtt_client.loop_start()
+
 
     def stop_mqtt_client(self):
         """Stops the MQTT client"""
@@ -80,6 +107,7 @@ class ProductionLine:
         """
         self.monitoring_active = True  # Enable monitoring
         while self.active == True and self.monitoring_active:
+
             for robot_arm in self.robot_arms.values():
                 payload_joint_consumptions = robot_arm.get_json_consumptions()
                 payload_grip = robot_arm.get_json_grip()
@@ -95,3 +123,4 @@ class ProductionLine:
         """Stops the monitoring and publishing process"""
         self.monitoring_active = False  # Disables the monitoring loop
         print("Stopped monitoring and publishing.")
+

@@ -4,7 +4,7 @@ This project uses Docker Compose to orchestrate the services needed for our IoT 
 
 ## Services
 
-![Docker Services](images/services.png)
+![Docker Services](../images/services.png)
 
 ### 1. **cloud-mosquitto-broker**
 
@@ -70,3 +70,7 @@ This service analyzes the data coming from the `mqtt_data_fetcher` microservice.
 ## Network
 
 All services are connected to the `iot_production_line_network`, which uses the `bridge` driver for container communication.
+
+## Images
+
+![Docker Services](../images/images.png)

@@ -18,7 +18,15 @@ The **MQTT Data Fetcher** microservice serves as an integration layer between an
 
 - **Updating End Effector Load**:  
   Sends POST requests to update the weight supported by the robot's end effector.
+___
+## Docker Setup
 
+To run the microservice, you must create a Docker image using the provided Dockerfile. For the initial version, we are using image version 0.1.
+
+```bash
+  docker build -t data-fetcher:0.1 .
+```
+___
 ## Methods and Code Structure
 
 To achieve the functionalities mentioned above, we have structured the service with an initialization code and two main methods.

@@ -1,46 +1,62 @@
-from typing import Dict
-from model.joint import Joint
-from model.sensor import Sensor
+from typing import Dict, List
+from .joint import Joint
+from .grip_sensor import GripSensor
+
 
 class RobotArm:
-    def __init__(self, arm_id: str, manufacturer: str):
+    def __init__(self, arm_id: str, manufacturer: str, n_joints: int, n_grips: int):
         self.arm_id: str = arm_id
         self.manufacturer: str = manufacturer
-        self.joints: Dict[str, Joint] = {}  # Giunti del braccio robotico
-        self.joint_consumptions_sensors: Dict[str, Sensor] = {}  # Sensori di consumo dei giunti
-        self.grip_sensors: Dict[str, Sensor] = {}  # Sensori di presa
+        self.joints: List[Joint] = [Joint(f"joint_{i}") for i in range(n_joints)]  # Joints of the robot arm
+        self.grips: List[GripSensor] = [GripSensor(f"grip_{i}", "ABB") for i in range(n_grips)]  # Grip sensors of the robot arm
+        self.idle = True
+
+    def start(self):
+        """Starts the robot arm"""
+        self.idle = False
+        self.start_auto_update()
+
+    def stop(self):
+        """Stops the robot arm"""
+        self.idle = True
+        print(f"Robot arm {self.arm_id} stopped.")
 
     def add_joint(self, joint: Joint):
-        """Aggiungi un giunto al braccio robotico"""
-        self.joints[joint.joint_id] = joint
+        """Adds a joint to the robot arm"""
+        self.joints.append(joint)
 
-    def add_joint_consumption_sensor(self, sensor: Sensor):
-        """Aggiungi un sensore di consumo dei giunti al braccio robotico"""
-        self.joint_consumptions_sensors[sensor.device_id] = sensor
-
-    def add_grip_sensor(self, sensor: Sensor):
-        """Aggiungi un sensore di presa al braccio robotico"""
-        self.grip_sensors[sensor.device_id] = sensor
+    def add_grip_sensor(self, grip_sensor: GripSensor):
+        """Adds a grip sensor to the robot arm"""
+        self.grips.append(grip_sensor)
 
     def get_grip_sensors(self):
-        """Restituisce i sensori di presa del braccio robotico"""
-        return list(self.grip_sensors.values())
+        """Returns the grip sensors of the robot arm"""
+        return self.grips
 
     def reset(self):
-        """Ripristina lo stato di tutti i giunti del braccio"""
-        for joint in self.joints.values():
-            joint.reset()
+        """Resets the state of all joints of the arm"""
+        for i, joint in enumerate(self.joints):
+            joint.current_sensor.reset()
+            print(f"Reset joint_{i} with value {joint.current_sensor.value}")
 
-    def get_json_joint_consumptions(self) -> Dict:
-        """Restituisce i consumi dei giunti in formato JSON"""
+    def get_json_consumptions(self) -> Dict:
+        """Returns the joint consumptions in JSON format"""
         return {
             "robot_arm_id": self.arm_id,
-            "joint_consumption_sensors": [sensor.get_json_measurement() for sensor in self.joint_consumptions_sensors.values()]
+            "joint_consumption_sensors": [joint.get_json() for joint in self.joints]
         }
-    
+
     def get_json_grip(self) -> Dict:
-        """Restituisce lo stato di presa del braccio robotico in formato JSON"""
+        """Returns the grip state of the robot arm in JSON format"""
         return {
             "robot_arm_id": self.arm_id,
-            "grip_sensors": [sensor.get_json_measurement() for sensor in self.grip_sensors.values()]
+            "grip_sensors": [grip.get_json_measurement() for grip in self.grips]
         }
+
+    def start_auto_update(self):
+        """Starts automatic updates of the sensors"""
+        for grip_sensor in self.grips:
+            grip_sensor.start_auto_update()
+
+        for joint in self.joints:
+            joint.current_sensor.start_auto_update()

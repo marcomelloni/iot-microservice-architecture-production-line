@@ -94,6 +94,18 @@ docker run --name=my-mosquitto-broker \
 
 ```
 
+##### Windows Version
+
+```bash
+docker run --name my-mosquitto-broker `
+  -p 1883:1883 `
+  -v "${PWD}/mqtt-local-broker/mosquitto_local.conf:/mosquitto/config/mosquitto.conf" `
+  -v "${PWD}/docker-compose/data:/mosquitto/data" `
+  -v "${PWD}/docker-compose/log:/mosquitto/log" `
+  --restart always `
+  -d eclipse-mosquitto
+```
+
 Parameter Descriptions
 
 - --name=my-mosquitto-broker: Sets the container name as my-mosquitto-broker.

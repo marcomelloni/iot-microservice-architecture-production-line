@@ -51,32 +51,51 @@ def on_message(client, userdata, msg):
             payload = json.loads(msg.payload.decode())
             robot_id = msg.topic.split('/')[1]
             message = msg.topic.split('/')[3]
-
+            
             if message == "joints_consumption":
+                
+                """
+                    payload_incoming = {'robot_arm_id': 'RA_002', 'joint_consumption_sensors': [
+                    {'joint_id': 'joint_0', 'current_sensor': {'device_id': 'joint_0', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 0.0, 'unit': 'A', 'timestamp': '2025-02-05T09:32:40.788389'}},
+                    {'joint_id': 'joint_1', 'current_sensor': {'device_id': 'joint_1', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 0.0, 'unit': 'A', 'timestamp': '2025-02-05T09:32:40.788394'}},
+                    {'joint_id': 'joint_2', 'current_sensor': {'device_id': 'joint_2', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 0.0, 'unit': 'A', 'timestamp': '2025-02-05T09:32:40.788398'}}
+                    ]}
+                """
+                
                 # Extract joint consumption data from the payload
-                for sensor in payload.get('joint_consumption_sensors', []):
-                    for joint in sensor.get('joints', []):
-                        consumption = joint.get('consumption', 0)
-                        joint_id = joint.get('joint_id', 'N/A')
+                
+
+                if payload.get('joint_consumption_sensors'):
+                    # Loop through the joint consumption sensors data
+                    for sensor in payload['joint_consumption_sensors']:
+                        # Extract joint_id and its consumption
+                        joint_id = sensor.get('joint_id', 'N/A')
+                        current_sensor = sensor.get('current_sensor', {})
+                        consumption = current_sensor.get('value', 0.0)  # Get the current consumption value
+
                         if consumption > 100:
-                            # If consumption exceeds 100, send a stop signal
+                            # If consumption exceeds 100, send a stop signal to the production line
                             mqtt_topic_publish = "production_line/control/stop"
                             value = True
                             client.publish(mqtt_topic_publish, json.dumps(value), qos=2)
-                            print(f"Published message to {mqtt_topic_publish} with payload {value} because {robot_id} - {joint_id} consumed {consumption} kW")
-                            
-                            
+                            print(f"Published message to {mqtt_topic_publish} with payload {value} because {joint_id} consumed {consumption} A")
+
+                            # Get the current time for fault logging
                             timenow = datetime.now()
+
+                            # Prepare the POST request payload
                             target_url = f"{api_url}/faults"
                             payload_desired = {
-                                "robot_id": robot_id,
-                                "fault": f"Robot {robot_id} - Joint {joint_id} consumed {consumption} kW at {timenow}"
+                                "robot_id": payload.get('robot_arm_id', 'N/A'),
+                                "fault": f"Robot {payload.get('robot_arm_id', 'N/A')} - Joint {joint_id} consumed {consumption} A at {timenow}"
                             }
 
+                            # Send the fault report via POST request
                             response = requests.post(target_url, json=payload_desired)
-                            print(f"POST request to {target_url} with payload {payload} returned {response.status_code}")
-                            return  # Stop after publishing once
-
+                            print(f"POST request to {target_url} with payload {payload_desired} returned {response.status_code}")
+                            
+                            return 
+            
         except Exception as e:
             print(f"Error processing MQTT message: {str(e)}")
 

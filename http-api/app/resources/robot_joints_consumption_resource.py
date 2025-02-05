@@ -2,7 +2,6 @@ from flask import request
 from flask_restful import Resource
 from dto.joint_entity_response import JointEntityResponse
 from model.joints_model import JointsModel
-from datetime import datetime
 from model.robot_arm_model import RobotArmModel
 
 class RobotJointsConsumptionResource(Resource):
@@ -32,7 +31,7 @@ class RobotJointsConsumptionResource(Resource):
         
         data = request.get_json()
         
-        # Validation of the received data
+        # Check if the request contains the joint data
         try:
             # Assumiamo che la richiesta contenga una lista di joint
             joints_data = data['joints']  # Lista di joint da aggiungere o aggiornare
@@ -43,9 +42,9 @@ class RobotJointsConsumptionResource(Resource):
 
         # Get the robot arm data
         robot_arm = self.data_manager.get_robot_arm(robot_id)
+        # if the robot does not exist, create it
         if not robot_arm:
-            # Se il robot non esiste, lo creiamo
-            # Supponiamo che ogni braccio robotico abbia un produttore di default, puoi personalizzarlo
+            # Setup a new deafult RobotArmModel
             robot_arm = RobotArmModel(arm_id=robot_id, manufacturer="DefaultManufacturer")
             self.data_manager.add_robot_arm(robot_arm)
 

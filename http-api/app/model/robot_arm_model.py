@@ -1,7 +1,6 @@
 from typing import Dict
 from model.joints_model import JointsModel
 import json
-from typing import Any
 
 class RobotArmModel:
     """

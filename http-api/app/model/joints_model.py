@@ -1,7 +1,5 @@
 import json
 from datetime import datetime
-from typing import Dict, Any
-
 
 class JointsModel:
     """
@@ -16,7 +14,6 @@ class JointsModel:
         :param joint_id: Unique identifier for the joint.
         :param consumption: Power consumption in watts.
         :param timestamp: Timestamp indicating the last measurement.
-        :raises ValueError: If consumption is negative or timestamp format is incorrect.
         """
         self.joint_id: str = joint_id
         self.set_consumption(consumption)
@@ -49,7 +46,6 @@ class JointsModel:
     def to_json(self) -> str:
         """
         Serializes the JointsModel object to a JSON string.
-
         :return: JSON representation of the JointsModel instance.
         """
         return json.dumps(self, default=lambda o: o.__dict__)

@@ -1,95 +1,77 @@
-from model.production_line import ProductionLine
-from model.robot_arm import RobotArm
-from model.joint import Joint
-from model.current_sensor import CurrentSensor
-from model.grip_sensor import GripSensor
 import time
+import paho.mqtt.client as mqtt
+from model.robot_arm import RobotArm
+from model.production_line import ProductionLine
+import threading
 
-# Create joints and the first robot arm
-joint_1 = Joint("J1")
-joint_2 = Joint("J2")
-joint_3 = Joint("J3")
-robot_arm_1 = RobotArm("RA_001", "XYZ Robotics")
-robot_arm_1.add_joint(joint_1)
-robot_arm_1.add_joint(joint_2)
-robot_arm_1.add_joint(joint_3)
+# Crea i robot arms
+robot_arm_1 = RobotArm("RA_001", "XYZ Robotics", 3, 1)
+robot_arm_2 = RobotArm("RA_002", "XYZ Robotics", 3, 1)
+robot_arm_3 = RobotArm("RA_003", "XYZ Robotics", 3, 1)
 
-# Create joints and the second robot arm
-joint_1_2 = Joint("J1")
-joint_2_2 = Joint("J2")
-joint_3_2 = Joint("J3")
-robot_arm_2 = RobotArm("RA_002", "XYZ Robotics")
-robot_arm_2.add_joint(joint_1_2)
-robot_arm_2.add_joint(joint_2_2)
-robot_arm_2.add_joint(joint_3_2)
-
-# Create joints and the third robot arm
-joint_1_3 = Joint("J1")
-joint_2_3 = Joint("J2")
-joint_3_3 = Joint("J3")
-robot_arm_3 = RobotArm("RA_003", "XYZ Robotics")
-robot_arm_3.add_joint(joint_1_3)
-robot_arm_3.add_joint(joint_2_3)
-robot_arm_3.add_joint(joint_3_3)
-
-# Create the production line
+# Crea la linea di produzione
 production_line = ProductionLine("PL_001")
 
-# Add the robot arms to the production line
+# Aggiungi i robot arms alla linea di produzione
 production_line.add_robot_arm(robot_arm_1)
 production_line.add_robot_arm(robot_arm_2)
 production_line.add_robot_arm(robot_arm_3)
 
-# Create the sensors for the first robot arm
-current_sensor_1 = CurrentSensor("CS_001", "XYZ Robotics", robot_arm_1, production_line)
-grip_sensor_1 = GripSensor("GS_001", "XYZ Robotics", robot_arm_1)
+# Flag per il monitoraggio
+monitoring_active = False
 
-# Create the sensors for the second robot arm
-current_sensor_2 = CurrentSensor("CS_002", "XYZ Robotics", robot_arm_2, production_line)
-grip_sensor_2 = GripSensor("GS_002", "XYZ Robotics", robot_arm_2)
+# Funzione di attivazione della linea di produzione
+def activate_production_line():
+    """Funzione per attivare la linea di produzione."""
+    global monitoring_active
+    production_line.activate()  # Riattiva la linea di produzione
+    print("Linea di produzione attivata.")
+    time.sleep(5)
+    
+    monitoring_active = True  # Abilita il monitoraggio
+    start_monitoring_thread()  # Avvia il thread di monitoraggio
 
-# Create the sensors for the third robot arm
-current_sensor_3 = CurrentSensor("CS_003", "XYZ Robotics", robot_arm_3, production_line)
-grip_sensor_3 = GripSensor("GS_003", "XYZ Robotics", robot_arm_3)
+def deactivate_production_line():
+    """Funzione per disattivare la linea di produzione."""
+    global monitoring_active
+    production_line.deactivate()  # Disattiva la linea di produzione
+    monitoring_active = False  # Ferma il monitoraggio
+    production_line.stop_monitor_and_publish()  # Ferma la pubblicazione dei dati
+    print("Linea di produzione fermata.")
 
-# Add the sensors to the robot arms
-robot_arm_1.add_joint_consumption_sensor(current_sensor_1)
-robot_arm_1.add_grip_sensor(grip_sensor_1)
-robot_arm_2.add_joint_consumption_sensor(current_sensor_2)
-robot_arm_2.add_grip_sensor(grip_sensor_2)
-robot_arm_3.add_joint_consumption_sensor(current_sensor_3)
-robot_arm_3.add_grip_sensor(grip_sensor_3)
+# Funzione per avviare il client MQTT e la pubblicazione dei dati
+def start_mqtt_client():
+    """Funzione per avviare il client MQTT e la pubblicazione dei dati."""
+    production_line.start_mqtt_client()  # Avvia il client MQTT
+    # Monitoraggio della produzione e pubblicazione dei dati
+    production_line.monitor_and_publish()  # Avvia la pubblicazione dei dati
 
-# Start automatic data publishing for each sensor
-current_sensor_1.start_auto_update()
-grip_sensor_1.start_auto_update()
+# Funzione principale per gestire la simulazione
+def start_production_simulation():
+    """Funzione principale per gestire la simulazione della produzione."""
+    # Attiviamo la linea di produzione
+    activate_production_line()
 
-current_sensor_2.start_auto_update()
-grip_sensor_2.start_auto_update()
+    # Avviamo il client MQTT e iniziamo la pubblicazione dei dati
+    start_mqtt_client()
 
-current_sensor_3.start_auto_update()
-grip_sensor_3.start_auto_update()
+# Funzione per eseguire il monitoraggio in un thread separato
+def start_monitoring_thread():
+    """Avvia il thread per il monitoraggio della produzione."""
+    def monitor():
+        while monitoring_active:  # Esegui finché il monitoraggio è attivo
+            production_line.monitor_and_publish()  # Pubblica i dati di monitoraggio
+            time.sleep(3)  # Aggiungi un ritardo per evitare un ciclo troppo veloce
 
+    # Avvia il thread per il monitoraggio
+    monitoring_thread = threading.Thread(target=monitor)
+    monitoring_thread.daemon = True  # Il thread termina quando il programma principale termina
+    monitoring_thread.start()
 
-# Simulazione di attivazione/disattivazione della linea di produzione
-# production_line.deactivate()  # Disattiva la linea di produzione (il sensore si ferma)
-time.sleep(5)
-production_line.activate()  # Riattiva la linea di produzione (il sensore riparte)
-# time.sleep(5)
+# Avvia la simulazione della produzione
+if __name__ == "__main__":
+    start_production_simulation()
 
-# while production_line.active:
-#     for robot_arm in production_line.robot_arms.values():
-#         # print(robot_arm.get_json_joint_consumptions())        
-#         print(robot_arm.get_json_grip())
-
-# Loop di monitoraggio per stampare i dati
-# while production_line.active:  # Usa production_line.active invece di self.active
-#     for robot_arm in production_line.robot_arms.values():
-#         for sensor in robot_arm.get_sensors():
-#             print(sensor.get_json_measurement())  # Stampa i dati aggiornati
-
-# # Avvio del client MQTT
-production_line.start_mqtt_client()
-
-# # Avvio del monitoraggio della produzione e pubblicazione dati sensori
-production_line.monitor_and_publish()
+    # Fai partire un ciclo infinito per simulare la continua esecuzione
+    while True:
+        time.sleep(1)  # Mantieni il thread principale attivo

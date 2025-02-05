@@ -1,54 +1,67 @@
+import random
 import threading
 import time
 from datetime import datetime
 from typing import Dict
-from model.sensor import Sensor
-from model.robot_arm import RobotArm
-from model.production_line import ProductionLine  # Import della linea di produzione
+from .sensor import Sensor
 
 class CurrentSensor(Sensor):
-    def __init__(self, device_id: str, device_manufacturer: str, robot_arm: 'RobotArm', production_line: 'ProductionLine'):
-        super().__init__(device_id, "Current Sensor", device_manufacturer)
-        self.robot_arm: RobotArm = robot_arm
-        self.production_line: ProductionLine = production_line  # Riferimento alla linea di produzione
+    def __init__(self, device_id: str, device_manufacturer: str):
+        self.timestamp = datetime.now()
+        self.value = 95
+        super().__init__(device_id, device_manufacturer, self.value, "A", self.timestamp)
         self.running = False
-        self._thread = threading.Thread(target=self._auto_update, daemon=True)
+        
+        # Thread for auto-update
+        self._thread = None
+
+    def update_consumption(self):
+        """Simulates an increase in consumption for the joint"""
+        self.value += random.uniform(0.000001, 0.000001)  # Increases consumption randomly
+        self.timestamp = datetime.now()
 
     def start_auto_update(self):
-        """Avvia l'aggiornamento automatico delle misure se la linea è attiva"""
+        """Starts automatic measurement updates every second"""
         if not self.running:
             self.running = True
+            self._thread = threading.Thread(target=self._auto_update)
             self._thread.start()
 
-    def stop_auto_update(self):
-        """Ferma l'aggiornamento automatico"""
-        self.running = False
-
     def _auto_update(self):
-        """Aggiorna i dati ogni secondo SOLO SE la linea di produzione è attiva"""
+        """Periodically updates consumption every second"""
         while self.running:
-            self.update_measurement()
-            time.sleep(1)  # Aspetta 1 secondo
+            self.update_consumption()
 
-    def update_measurement(self):
-        """Simula il consumo di ogni joint nel braccio robotico"""
-        for joint in self.robot_arm.joints.values():
-            joint.update_consumption()
-        self.timestamp = datetime.utcnow()
+    def stop_auto_update(self):
+        """Stops automatic updates"""
+        self.running = False
+        if self._thread is not None and self._thread.is_alive():
+            self._thread.join()
 
     def reset(self):
-        """Ripristina lo stato di tutti i giunti del braccio associato"""
-        for joint in self.robot_arm.joints.values():
-            joint.reset()
-
-    def get_total_consumption(self) -> float:
-        """Restituisce il consumo totale dei giunti del braccio robotico"""
-        return sum(joint.consumption for joint in self.robot_arm.joints.values())
+        """Resets the joint's consumption"""
+        self.value = 95.0
+        self.timestamp = datetime.now()
 
     def get_json_measurement(self) -> Dict:
-        """Restituisce i dati del sensore in formato JSON"""
-        return {
-            "device_id": self.device_id,
-            "total_consumption": self.get_total_consumption(),
-            "joints": [joint.get_json() for joint in self.robot_arm.joints.values()]
-        }
+        """Returns the sensor data in JSON format"""
+        return super().get_json_measurement()
+
+
+
+"""{'robot_arm_id': 'RA_001', 'joint_consumption_sensors': [
+    {'joint_id': 'joint_0', 'current_sensor': {'device_id': 'joint_0', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 107.26375397661127, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.150562'}},
+    {'joint_id': 'joint_1', 'current_sensor': {'device_id': 'joint_1', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 87.48555998110078, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.090694'}},
+    {'joint_id': 'joint_2', 'current_sensor': {'device_id': 'joint_2', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 87.20065898182008, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.138400'}}]}
+
+
+{'robot_arm_id': 'RA_002', 'joint_consumption_sensors': [
+    {'joint_id': 'joint_0', 'current_sensor': {'device_id': 'joint_0', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 107.04546797716239, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.216551'}},
+    {'joint_id': 'joint_1', 'current_sensor': {'device_id': 'joint_1', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 87.04775198220614, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.175623'}},
+    {'joint_id': 'joint_2', 'current_sensor': {'device_id': 'joint_2', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 86.95486998244064, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.156829'}}]}
+
+
+{'robot_arm_id': 'RA_003', 'joint_consumption_sensors': [{
+    'joint_id': 'joint_0', 'current_sensor': {'device_id': 'joint_0', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 107.26763597660147, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.548974'}},
+                                                         {'joint_id': 'joint_1', 'current_sensor': {'device_id': 'joint_1', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 87.1943939818359, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.555250'}},
+                                                         {'joint_id': 'joint_2', 'current_sensor': {'device_id': 'joint_2', 'device_type': 'Sensor', 'device_manufacturer': 'ABB', 'value': 87.15930998192448, 'unit': 'A', 'timestamp': '2025-02-05T11:37:43.513594'}}]}"""

@@ -1,5 +1,3 @@
-from json import JSONDecodeError
-from flask import request, Response
 from flask_restful import Resource
 from dto.robot_arm_entity_response import RobotArmEntityResponse
 

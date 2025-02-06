@@ -4,6 +4,11 @@ This project simulates a production line using MQTT (Message Queuing Telemetry T
 
 ## Project Structure
 
+The main components represent various components of the production line, they have been modelled exploiting Object-Oriented Programming.  To guarantee an easier management of the system functionality, we have also realized a model for our production line.
+The class' structure realized can be visioned at [models folder](../mqtt-production-line/model/README.md).
+
+![Production_line_img](../readme_images/Production_line_scheme.png)
+
 ### Producer
 
 The `producer` component is responsible for simulating the production line and publishing data to the MQTT broker.

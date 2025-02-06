@@ -83,17 +83,10 @@ If the message type is "joints_consumption," the joint consumption data is extra
 tested.
 In case a problem is discovered, the service deliver a stop order to the local production line through the MQTT cloud
 broker, publishing the command on the
-To ensure reliable message reception between the Actuator service and teh local production line, the Quality of
+To ensure reliable message reception between the Actuator service and the local production line, the Quality of
 Service (QoS) is set to `QOS2`.
 
 ```python
-    if mqtt.topic_matches_sub(mqtt_topic, msg.topic):  # Check the MQTT topic
-    try:
-        # Decode the incoming MQTT message
-        payload = json.loads(msg.payload.decode())
-        robot_id = msg.topic.split('/')[1]
-        message = msg.topic.split('/')[3]
-
         if message == "joints_consumption":
             # Extract joint consumption data from the payload
             if payload.get('joint_consumption_sensors'):
@@ -109,12 +102,10 @@ Service (QoS) is set to `QOS2`.
                         mqtt_topic_publish = "production_line/control/stop"
                         value = True
                         client.publish(mqtt_topic_publish, json.dumps(value), qos=2)
-                        print(
-                            f"Published message to {mqtt_topic_publish} with payload {value} because {joint_id} consumed {consumption} A")
-
-                        # Get the current time for fault logging
-                        timenow = datetime.now()
-
+                        print(f"Published message to {mqtt_topic_publish} with payload {value} because {joint_id} consumed {consumption} A")
+                        
+                        ...
+                        
                         # Prepare the POST request payload
                         target_url = f"{api_url}/faults"
                         payload_desired = {

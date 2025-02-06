@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="images/cover.jpg" alt="IoT Microservices Architecture" width="100%">
+  <img src="readme_images/cover.jpg" alt="IoT Microservices Architecture" width="100%">
 </p>
 
 # IoT Microservice Architecture for Production Line Monitoring
 
 This project demonstrates the implementation of a robust IoT Microservices Architecture specifically designed to monitor and manage a production line consisting of multiple robotic arms. By leveraging the power of microservices and containerization technologies, this architecture provides a flexible, scalable, and maintainable solution for real-time data collection, analysis, and system management. The architecture ensures high efficiency and seamless integration, making it ideal for dynamic and evolving industrial environments.
 
-![IoT Architecture](images/iot_architecture.png)
+![IoT Architecture](readme_images/iot_architecture.png)
 
 ## Project Structure
 
@@ -37,7 +37,7 @@ integration and operation:
 
 ## Overall Structure
 
-![Microservice Architecture](images/microservices.png)
+![Microservice Architecture](readme_images/microservices.png)
 
 # Execution/Run Details
 

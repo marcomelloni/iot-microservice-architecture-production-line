@@ -66,14 +66,14 @@ local broker will attempt to connect to this IP address to synchronize messages.
 #### ⁠ topic # in 0 ⁠
 
 _Description_: This line defines the topics that the local broker subscribes to from the cloud broker. ⁠ # ⁠ is a
-wildcard that indicates all topics are included. ⁠ in 0 ⁠ specifies that messages received from the cloud broker on
+wildcard that indicates all topics are included. ⁠ In 0 ⁠ specifies that messages received from the cloud broker on
 these topics will be processed with a Quality of Service (QoS) level of 0, meaning the message is sent at most once
 without any delivery guarantees.
 
 #### ⁠ topic # out 0 ⁠
 
 _Description_: This line defines the topics to which the local broker will publish messages to the cloud broker. Again,
-⁠ # ⁠ indicates all topics. ⁠ out 0 ⁠ specifies that messages sent from the local broker will be published with QoS 0.
+⁠ # ⁠ indicates all topics. ⁠ Out 0 ⁠ specifies that messages sent from the local broker will be published with QoS 0.
 
 #### ⁠ bridge_attempt_unsubscribe false ⁠
 

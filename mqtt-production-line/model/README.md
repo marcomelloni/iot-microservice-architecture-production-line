@@ -23,25 +23,6 @@ The `Device` class serves as the base class for all devices in the production li
 - `device_type`
 - `device_manufacturer`
 
-### Joint
-
-The `Joint` class represents a joint in a robot arm and includes methods to reset and manage its state:
-
-- `reset()`: Resets the joint to its default state.
-- `get_state()`: Retrieves the current state of the joint.
-- `set_state(state)`: Sets the state of the joint.
-
-### RobotArm
-
-The `RobotArm` class represents a robotic arm composed of multiple joints and sensors. It provides methods for component management and data retrieval:
-
-- `add_joint(joint)`: Adds a joint to the robot arm.
-- `add_joint_consumption_sensor(sensor)`: Attaches a current consumption sensor.
-- `add_grip_sensor(sensor)`: Attaches a grip sensor.
-- `reset()`: Resets the robot arm and its components.
-- `get_json_joint_consumptions()`: Retrieves joint consumption data in JSON format.
-- `get_json_grip()`: Retrieves grip status data in JSON format.
-
 ### Sensor
 
 The `Sensor` class serves as a generic representation of sensor devices, with attributes and methods including:
@@ -64,6 +45,27 @@ The `GripSensor` class measures the grip status of a robot arm. It includes meth
 
 - `start_auto_update()`: Starts automatic data collection.
 - `stop_auto_update()`: Stops automatic data collection.
+
+### Joint
+
+The `Joint` class represents a joint in a robot arm and includes methods to reset and manage its state:
+
+- `reset()`: Resets the joint to its default state.
+- `get_state()`: Retrieves the current state of the joint.
+- `set_state(state)`: Sets the state of the joint.
+
+### RobotArm
+
+The `RobotArm` class represents a robotic arm composed of multiple joints and sensors. It provides methods for component management and data retrieval:
+
+- `add_joint(joint)`: Adds a joint to the robot arm.
+- `add_joint_consumption_sensor(sensor)`: Attaches a current consumption sensor.
+- `add_grip_sensor(sensor)`: Attaches a grip sensor.
+- `reset()`: Resets the robot arm and its components.
+- `get_json_joint_consumptions()`: Retrieves joint consumption data in JSON format.
+- `get_json_grip()`: Retrieves grip status data in JSON format.
+
+![Robot_arm_class_img](/readme_images/Robotic_arm_scheme.png)
 
 ## Usage
 

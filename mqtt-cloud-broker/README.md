@@ -27,14 +27,14 @@ Below is a detailed explanation of the various settings used in the file.
 
 ⁠ listener 1883 ⁠
 
-_Description_: This line configures the local Mosquitto broker to listen on port 1883. This is the default port for MQTT
+_Description_: This line configures the cloud Mosquitto broker to listen on port 1883. This is the default port for MQTT
 communication, and it allows local devices to connect to the broker.
 
 ## 2. Allow Anonymous Connections
 
 ⁠ allow_anonymous true ⁠
 
-_Description_: This setting allows anonymous connections to the local broker. With this configuration, clients do not
+_Description_: This setting allows anonymous connections to the cloud broker. With this configuration, clients do not
 need to provide authentication credentials (username and password) to connect to the broker. This can be useful in local
 networks where devices are trusted, but it is not recommended for production environments where security is important.
 
@@ -45,7 +45,7 @@ broker to send and receive messages to and from the local one.
 
 ### ⁠ connection local-mosquitto-broker ⁠
 
-_Description_: This parameter defines the name of the bridge connection. ⁠ local-mosquitto-broker ⁠ is a reference name
+_Description_: ⁠ local-mosquitto-broker ⁠ is a reference name
 that can be used later to configure the connection.
 
 ### ⁠ address 192.168.0.231:1883 ⁠
@@ -55,14 +55,14 @@ _Description_: This defines the IP address and port of the local broker. In this
 ### ⁠ topic # in 0 ⁠
 
 _Description_: This line defines the topics that the cloud broker subscribes to from the local broker. ⁠ # ⁠ is a
-wildcard that indicates all topics are included. ⁠ in 0 ⁠ specifies that messages received from the local broker on
+wildcard that indicates all topics are included. ⁠ In 0 ⁠ specifies that messages received from the local broker on
 these topics will be processed with a Quality of Service (QoS) level of 0, meaning the message is sent at most once
 without any delivery guarantees.
 
 ### ⁠ topic # out 0 ⁠
 
 _Description_: This line defines the topics to which the cloud broker will publish messages to the local broker. Again,
-⁠ # ⁠ indicates all topics. ⁠ out 0 ⁠ specifies that messages sent from the cloud broker will be published with QoS 0.
+⁠ # ⁠ indicates all topics. ⁠ Out 0 ⁠ specifies that messages sent from the cloud broker will be published with QoS 0.
 
 ### ⁠ bridge_attempt_unsubscribe false ⁠
 

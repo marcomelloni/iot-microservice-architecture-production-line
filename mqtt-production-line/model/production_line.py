@@ -2,15 +2,20 @@ import paho.mqtt.client as mqtt
 from typing import Dict
 from model.robot_arm import RobotArm
 import json
-import time
 
 BROKER_ADDRESS = "0.0.0.0"  # Address of the MQTT broker
 BROKER_PORT = 1883  # Port of the broker (using the standard port)
-MQTT_USERNAME = "iot-project-Melloni-Angelini-Morselli"  
-MQTT_PASSWORD = "password"  
+MQTT_USERNAME = "iot-project-Melloni-Angelini-Morselli"
+MQTT_PASSWORD = "password"
 MQTT_BASIC_TOPIC = f"robot"  # Base topic
 
+
 class ProductionLine:
+    """
+    Represents a production line that manages robot arms and communicates with an MQTT broker.
+    It can receive commands to start or stop the production line and publish telemetry data.
+    """
+
     def __init__(self, line_id: str):
         self.line_id: str = line_id
         self.robot_arms: Dict[str, RobotArm] = {}
@@ -35,7 +40,7 @@ class ProductionLine:
     def activate(self):
         """Activates the production line"""
         self.active = True
-        self.monitoring_active = True  
+        self.monitoring_active = True
         for robot_arm in self.robot_arms.values():
             robot_arm.start()
         print(f"Production line {self.line_id} activated.")
@@ -78,16 +83,15 @@ class ProductionLine:
             self.stopped = False  # Reset stopped flag
 
     def start_mqtt_client(self):
-        """Inizializza e avvia il client MQTT con sottoscrizione ai comandi"""
+        """Initializes and starts the MQTT client with command subscription"""
         self.mqtt_client = mqtt.Client(f"production-line-{self.line_id}")
         self.mqtt_client.on_connect = self.on_connect
-        self.mqtt_client.on_message = self.on_message  # Aggiungi gestione messaggi
+        self.mqtt_client.on_message = self.on_message  # Add message handling
         self.mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
         self.mqtt_client.connect(BROKER_ADDRESS, BROKER_PORT)
-        
-        self.mqtt_client.subscribe(f"{MQTT_BASIC_TOPIC}/command")  # Ascolta i comandi
-        self.mqtt_client.loop_start()
 
+        self.mqtt_client.subscribe(f"{MQTT_BASIC_TOPIC}/command")  # Listen for commands
+        self.mqtt_client.loop_start()
 
     def stop_mqtt_client(self):
         """Stops the MQTT client"""
@@ -97,7 +101,7 @@ class ProductionLine:
             print("MQTT client disconnected.")
 
     def monitor_and_publish(self):
-        """Simula il monitoraggio e la pubblicazione dati MQTT"""
+        """Simulates monitoring and publishing MQTT data"""
         self.monitoring_active = True
         while self.active and self.monitoring_active:
             print(f"[DEBUG] Monitoring active: {self.monitoring_active}, Production line active: {self.active}")

@@ -15,9 +15,12 @@ mqtt_client = mqtt.Client(client_id)
 
 def on_connect(client, userdata, flags, rc):
     """Callback when connected to the broker"""
-    print(f"Connected with result code {rc}")
-    mqtt_client.subscribe(target_topic_filter)
-    print(f"Subscribed to topic: {target_topic_filter}")
+    if rc == 0:
+        mqtt_client.subscribe(target_topic_filter)
+        print(f"Subscribed to topic: {target_topic_filter}")
+    else:
+        print(f"MQTT connection error: {rc}")
+
 
 def on_message(client, userdata, message):
     """Callback when a message is received"""
@@ -29,11 +32,9 @@ def on_message(client, userdata, message):
             if isinstance(payload_data, bool) and payload_data:  # If True, stop the production line
                 mqtt_client.publish(f"{MQTT_LINE_BASIC_TOPIC}/command", "STOP")
                 print("Production Line deactivated")
-                
-            # print(f"Message received {message.topic}: {payload_data}")
-
         except json.JSONDecodeError:
             print("Error decoding JSON payload.")
+
 
 # Assign callbacks to the MQTT client
 mqtt_client.on_message = on_message

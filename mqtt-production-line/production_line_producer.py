@@ -16,8 +16,14 @@ production_line.add_robot_arm(robot_arm_3)
 
 # Start the production line
 if __name__ == "__main__":
-    production_line.activate()
-    # Start the MQTT client
-    production_line.start_mqtt_client()
-    # Start the monitoring and publishing process
-    production_line.monitor_and_publish()
+    try:
+        production_line.activate()
+        # Start the MQTT client
+        production_line.start_mqtt_client()
+        # Start the monitoring and publishing process
+        production_line.monitor_and_publish()
+    except Exception as e:
+        print(f"[ERROR] Unexpected error: {e}")
+    finally:
+        # Ensure LWT message is sent and MQTT client is stopped
+        production_line.stop_mqtt_client()

@@ -57,7 +57,7 @@ class ProductionLine:
         """Publishes sensor data to the MQTT topic"""
         if self.mqtt_connected:
             self.mqtt_client.publish(topic, json.dumps(sensor_data), qos=0, retain=False)
-            print(f"Published: {topic} with data {sensor_data}")
+            #print(f"Published: {topic} with data {sensor_data}")
         else:
             print("Error: not connected to the MQTT broker.")
 
@@ -83,35 +83,59 @@ class ProductionLine:
             self.stopped = False  # Reset stopped flag
 
     def start_mqtt_client(self):
-        """Initializes and starts the MQTT client with command subscription"""
+        """Initializes and starts the MQTT client with command subscription and Last Will message"""
         self.mqtt_client = mqtt.Client(f"production-line-{self.line_id}")
+        
+        # Set up the Last Will and Testament (LWT) message
+        lwt_topic = f"{MQTT_BASIC_TOPIC}/production-line/status"
+        lwt_message = json.dumps({"status": "disconnected", "line_id": self.line_id})
+        self.mqtt_client.will_set(lwt_topic, payload=lwt_message, qos=1, retain=False)
+        
+        # Set callback functions for handling MQTT events
         self.mqtt_client.on_connect = self.on_connect
-        self.mqtt_client.on_message = self.on_message  # Add message handling
+        self.mqtt_client.on_message = self.on_message  # Add message handling function
+        
+        # Set MQTT credentials
         self.mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
         self.mqtt_client.connect(BROKER_ADDRESS, BROKER_PORT)
-
-        self.mqtt_client.subscribe(f"{MQTT_BASIC_TOPIC}/command")  # Listen for commands
+        self.mqtt_client.subscribe(f"{MQTT_BASIC_TOPIC}/command")
         self.mqtt_client.loop_start()
+        print(f"MQTT client started for production line {self.line_id}")
 
     def stop_mqtt_client(self):
-        """Stops the MQTT client"""
+        """Stops the MQTT client and sends Last Will message"""
         if self.mqtt_client:
-            self.mqtt_client.loop_stop()
-            self.mqtt_client.disconnect()
-            print("MQTT client disconnected.")
+            # Send a "stopped" status message if the client disconnects normally
+            lwt_topic = f"{MQTT_BASIC_TOPIC}/production-line/status"
+            lwt_message = json.dumps({"status": "stopped", "line_id": self.line_id})
+            result = self.mqtt_client.publish(lwt_topic, payload=lwt_message, qos=1, retain=False)
+            if result.rc == mqtt.MQTT_ERR_SUCCESS:
+                print(f"[DEBUG] LWT message sent to topic {lwt_topic} with payload {lwt_message}")
+            else:
+                print(f"[ERROR] Failed to send LWT message, result code: {result.rc}")
 
     def monitor_and_publish(self):
         """Simulates monitoring and publishing MQTT data"""
         self.monitoring_active = True
-        while self.active and self.monitoring_active:
-            print(f"[DEBUG] Monitoring active: {self.monitoring_active}, Production line active: {self.active}")
-            for robot_arm in self.robot_arms.values():
-                payload_joint_consumptions = robot_arm.get_json_consumptions()
-                payload_grip = robot_arm.get_json_grip()
+        try:
+            while self.active and self.monitoring_active:
+                #print(f"[DEBUG] Monitoring active: {self.monitoring_active}, Production line active: {self.active}")
+                for robot_arm in self.robot_arms.values():
+                    payload_joint_consumptions = robot_arm.get_json_consumptions()
+                    payload_grip = robot_arm.get_json_grip()
 
-                topic_joints_consumption = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/joints_consumption"
-                topic_grip = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/grip"
+                    topic_joints_consumption = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/joints_consumption"
+                    topic_grip = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/grip"
 
-                self.publish_measurement(payload_joint_consumptions, topic_joints_consumption)
-                self.publish_measurement(payload_grip, topic_grip)
-        print("[DEBUG] Exiting monitoring loop.")
+                    self.publish_measurement(payload_joint_consumptions, topic_joints_consumption)
+                    self.publish_measurement(payload_grip, topic_grip)
+        except KeyboardInterrupt:
+            # Handle graceful exit on user interruption
+            print("[DEBUG] Monitoring interrupted by user.")
+        except Exception as e:
+            # Log unexpected errors
+            print(f"[ERROR] An error occurred: {e}")
+        finally:
+            # Ensure that the MQTT client is stopped, and LWT is sent in any case
+            print("[DEBUG] Exiting monitoring loop.")
+            self.stop_mqtt_client()  # Ensure LWT message is sent

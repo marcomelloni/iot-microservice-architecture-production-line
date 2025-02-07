@@ -12,7 +12,8 @@ configuration_dict = {
     "broker_ip": "127.0.0.1",
     "broker_port": 1883,
     "target_telemetry_topic": "robot/+/telemetry/#",
-    "device_api_url": "http://127.0.0.1:7070/api/v1/productionline/robot"
+    "device_api_url": "http://127.0.0.1:7070/api/v1/productionline/robot",
+    "target_lwt_topic": "robot/production-line/status"
 }
 
 
@@ -64,12 +65,13 @@ def on_message(client, userdata, msg):
     :param userdata: The private user data as set in Client() or userdata_set().
     :param msg: An instance of MQTTMessage, which contains topic, payload, qos, retain.
     """
+        
     if mqtt.topic_matches_sub(mqtt_topic, msg.topic):
         try:
             payload = json.loads(msg.payload.decode())
             robot_id = msg.topic.split('/')[1]
             message = msg.topic.split('/')[3]
-            print(f'{robot_id} - {message} - {payload}')
+            #print(f'{robot_id} - {message} - {payload}')
 
             if message == "joints_consumption":
                 target_url = f"{api_url}/{robot_id}/telemetry/joints_consumption"
@@ -86,7 +88,7 @@ def on_message(client, userdata, msg):
 
                 response = requests.post(target_url, json=payload_desired)
                 print(f"POST request to {target_url} with payload {payload} returned {response.status_code}")
-                time.sleep(1)
+                #time.sleep(1)
 
             elif message == "grip":
                 target_url = f"{api_url}/{robot_id}/telemetry/weight_ee"
@@ -102,14 +104,16 @@ def on_message(client, userdata, msg):
                 }
 
                 response = requests.post(target_url, json=payload_desired)
-                print(f"POST request to {target_url} with payload {weight} returned {response.status_code}")
-                time.sleep(1)
+                print(f"POST request to {target_url} with payload {weight_kg} returned {response.status_code}")
+                #time.sleep(1)
 
             else:
                 print(f"Unknown message type: {message}")
         except Exception as e:
             print(f"Error processing MQTT message: {str(e)}")
-
+            
+    if msg.topic == "robot/production-line/status":
+        print(f"Production Line Status: {msg.payload.decode()}")
 
 # Create MQTT client
 client = mqtt.Client()

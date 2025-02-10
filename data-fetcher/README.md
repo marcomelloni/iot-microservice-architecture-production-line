@@ -52,17 +52,22 @@ We use it to notify the user of the successful connection and to have the servic
     def on_connect(client, userdata, flags, rc):
         print("Connected to MQTT Broker with result code " + str(rc))
         client.subscribe(mqtt_topic)
-
+        client.subscribe(info_topic)
 ```
 
 #### On_message
 
-The on_message function uses a TRY/EXCEPT structure to check if the incoming message is of the "joints_consumption" or "grip" type.
+The on_message function uses a TRY/EXCEPT structure to prevent issues.
 If an error occurs, an error log is generated to help the user understand what went wrong.
 
 ```python
     def on_message(client, userdata, msg):
         if mqtt.topic_matches_sub(mqtt_topic, msg.topic):
+            try:
+                ....
+            except Exception as e:
+                print(f"Error processing MQTT message: {str(e)}")
+        if mqtt.topic_matches_sub(info_topic, msg.topic):
             try:
                 ....
             except Exception as e:
@@ -116,6 +121,21 @@ If the message type is unknown, an error is logged:
 ```python
 else:
   print(f"Unknown message type: {message}")
+```
+
+##### Production Line Info
+
+If the topic matches, an HTTP POST request is sent to the specified URL to update the production line information. This message is retained by the broker, ensuring that even if no subscribers are currently registered, the last message remains stored. When a new subscriber subscribes to the topic, the broker automatically delivers the most recent message.
+
+```python
+if mqtt.topic_matches_sub(info_topic, msg.topic):
+        try:
+            payload = json.loads(msg.payload.decode())
+            target_url = f"{api_url}/robots"
+            response = requests.post(target_url, json=payload)
+            print(f"POST request to {target_url} with payload {payload} returned {response.status_code}")
+        except Exception as e:
+            print(f"Error processing MQTT message: {str(e)}")
 ```
 
 ## Running the Service

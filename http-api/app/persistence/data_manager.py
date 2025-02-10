@@ -1,6 +1,5 @@
-from ..model.robot_arm_model import RobotArmModel
-from ..model.joints_model import JointsModel
-
+from model.robot_arm_model import RobotArmModel
+from model.joints_model import JointsModel
 
 class DataManager:
     """DataManager class to manage the robot arms of the production line and their data"""
@@ -11,9 +10,23 @@ class DataManager:
         self.joint_dictionary = {}  # Dictionary to store all joints by UUID
         self.weight_end_effector_dictionary = {}  # Dictionary to store end effector weight by robot ID
         self.fault_dictionary = {}  # Dictionary to store faults by robot ID
+        self.status : bool = True
+        self.line_id = "PL_001"
+
+    # PRODUCTION LINE MANAGEMENT
+
+    def update_production_line_info(self, line_id : str, status: bool):
+        """
+        Updates the production line information.
+
+        :param line_id: The ID of the production line.
+        :param status: The status of the production line
+        """
+        self.line_id = line_id
+        self.status = status
 
     # ROBOT ARM MANAGEMENT
-
+    
     def add_robot_arm(self, new_robot_arm: RobotArmModel):
         """
         Adds a new robot arm to the robot_arm_list.

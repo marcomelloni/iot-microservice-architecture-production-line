@@ -27,6 +27,14 @@ class ProductionLine:
     def add_robot_arm(self, robot_arm: RobotArm):
         """Adds a robot arm to the production line"""
         self.robot_arms[robot_arm.arm_id] = robot_arm
+        
+    def get_production_line_info(self):
+        """Returns a dictionary with information about the production line"""
+        return {
+            "line_id": self.line_id,
+            "robot_arms": len(self.robot_arms),
+            "active": self.active
+        }
 
     def deactivate(self):
         """Deactivates the production line and stops the robot arms"""
@@ -58,6 +66,14 @@ class ProductionLine:
         if self.mqtt_connected:
             self.mqtt_client.publish(topic, json.dumps(sensor_data), qos=0, retain=False)
             #print(f"Published: {topic} with data {sensor_data}")
+        else:
+            print("Error: not connected to the MQTT broker.")
+            
+    def publish_info(self, topic: Dict, message: str):
+        """Publishes an information message about the production line to the MQTT topic"""
+        if self.mqtt_connected:
+            self.mqtt_client.publish(topic, message, qos=0, retain=True)
+            print(f"Published: {topic} with message {message}")
         else:
             print("Error: not connected to the MQTT broker.")
 
@@ -123,12 +139,15 @@ class ProductionLine:
                 for robot_arm in self.robot_arms.values():
                     payload_joint_consumptions = robot_arm.get_json_consumptions()
                     payload_grip = robot_arm.get_json_grip()
+                    payload_production_line_info = self.get_production_line_info()
 
                     topic_joints_consumption = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/joints_consumption"
                     topic_grip = f"{MQTT_BASIC_TOPIC}/{robot_arm.arm_id}/telemetry/grip"
+                    topic_production_line_info = f"production_line/info"
 
                     self.publish_measurement(payload_joint_consumptions, topic_joints_consumption)
                     self.publish_measurement(payload_grip, topic_grip)
+                    self.publish_measurement(payload_production_line_info, topic_production_line_info)
         except KeyboardInterrupt:
             # Handle graceful exit on user interruption
             print("[DEBUG] Monitoring interrupted by user.")

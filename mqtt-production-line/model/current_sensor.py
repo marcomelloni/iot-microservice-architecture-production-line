@@ -22,7 +22,7 @@ class CurrentSensor(Sensor):
 
     def update_consumption(self):
         """Simulates a very small increase in consumption for the joint"""
-        self.value += random.uniform(0.000001, 0.000001)  # Increases consumption randomly
+        self.value += random.uniform(0.00001, 0.000001)  # Increases consumption randomly
         self.timestamp = datetime.now()
 
     def start_auto_update(self):

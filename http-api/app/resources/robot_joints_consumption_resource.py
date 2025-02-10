@@ -1,8 +1,8 @@
 from flask import request
 from flask_restful import Resource
-from ..dto.joint_entity_response import JointEntityResponse
-from ..model.joints_model import JointsModel
-from ..model.robot_arm_model import RobotArmModel
+from dto.joint_entity_response import JointEntityResponse
+from model.joints_model import JointsModel
+from model.robot_arm_model import RobotArmModel
 
 
 class RobotJointsConsumptionResource(Resource):

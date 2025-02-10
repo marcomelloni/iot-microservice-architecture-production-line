@@ -1,8 +1,8 @@
+# IoT Microservice Architecture for Production Line Monitoring
+
 <p align="center">
   <img src="readme_images/cover.jpg" alt="IoT Microservices Architecture" width="100%">
 </p>
-
-# IoT Microservice Architecture for Production Line Monitoring
 
 ## Introduction
 

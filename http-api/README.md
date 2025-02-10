@@ -36,7 +36,7 @@ The API resources contains the models used to provide the clients with API metho
 by :
 
 - **ProductionLineResource**: Handles operations related to a production lines, such as declaring the basic number of
-  robots.
+  robots and the status of the production line
 - **RobotJointsConsumptionResource**: Handles the consumption of joints for a specific robot
 - **RobotWeightEEResource**: Handles the end effector weight of a specific robot
 - **FaultActuatorResource**: : Handles the notifications produced by the fault prevention actuator
@@ -143,6 +143,20 @@ class DataManager:
         self.joint_dictionary = {}  # Dictionary to store all joints by UUID
         self.weight_end_effector_dictionary = {}  # Dictionary to store end effector weight by robot ID
         self.fault_dictionary = {}  # Dictionary to store faults by robot ID
+        self.status : bool = True # Production Line status
+        self.line_id = "PL_001" # Production Line id
+
+    # PRODUCTION LINE MANAGEMENT
+
+    def update_production_line_info(self, line_id : str, status: bool):
+        """
+        Updates the production line information.
+
+        :param line_id: The ID of the production line.
+        :param status: The status of the production line
+        """
+        self.line_id = line_id
+        self.status = status
 
     # SINGLE ROBOT ARM MANAGEMENT
 

@@ -1,6 +1,6 @@
 from flask_restful import Resource
-from ..dto.robot_arm_entity_response import RobotArmEntityResponse
-
+from dto.robot_arm_entity_response import RobotArmEntityResponse
+from flask import request
 
 class ProductionLineResource(Resource):
     """
@@ -38,3 +38,16 @@ class ProductionLineResource(Resource):
             result_robot_list.append(robot_entity_response.__dict__)
 
         return result_robot_list, 200
+
+    def post(self):
+        """
+        POST production line information.
+
+        :param robot_id: The ID of the robot arm.
+        :return: A success message if the data is processed successfully, otherwise an error message.
+        """
+        data = request.get_json()
+        # Process each joint in the list
+        self.data_manager.update_production_line_info(data["line_id"], data["active"])
+
+        return {"message": "Joint consumption data processed successfully"}, 201

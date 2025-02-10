@@ -54,11 +54,33 @@ web:
 
 ## API Endpoints
 
-| Endpoint                                         | Description                                                  |
-| ------------------------------------------------ | ------------------------------------------------------------ |
-| `/robot/<robot_id>/telemetry/joints_consumption` | Fetches and displays joint consumption data                  |
-| `/robot/<robot_id>/telemetry/weight_ee`          | Fetches and displays weight capacity data                    |
-| `/robot/<robot_id>/faults`                       | Fetches and displays logs from the Fault Prevention Actuator |
+<table>
+  <tr>
+    <th style="width: 10%;">Endpoint</th>
+    <th style="width: 20%;">Description</th>
+    <th style="width: 70%;">Image</th>
+  </tr>
+  <tr>
+    <td>`/robot/<robot_id>/telemetry/joints_consumption`</td>
+    <td>Fetches and displays joint consumption data</td>
+    <td><img src="../readme_images/ui_joints_consumption.png" alt="Production Line"></td>
+  </tr>
+  <tr>
+    <td>`/robot/<robot_id>/telemetry/weight_ee`</td>
+    <td>Fetches and displays weight capacity data</td>
+    <td><img src="../readme_images/ui_weight_ee.png" alt="Production Line"></td>
+  </tr>
+  <tr>
+    <td>`/robot/<robot_id>/faults`</td>
+    <td>Fetches and displays logs from the Fault Prevention Actuator</td>
+    <td><img src="../readme_images/ui_robot_faults.png" alt="Production Line"></td>
+  </tr>
+  <tr>
+    <td>`/robot/robots`</td>
+    <td>Fetches and displays all the robots in the Production Line</td>
+    <td><img src="../readme_images/ui_production_line.png" alt="Production Line"></td>
+  </tr>
+</table>
 
 ## Running the Service
 
